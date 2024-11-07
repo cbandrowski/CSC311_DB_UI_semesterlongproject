@@ -117,18 +117,35 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     protected void editRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
-        int index = data.indexOf(p);
-        Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
-                major.getText(), email.getText(),  imageURL.getText());
-        cnUtil.editUser(p.getId(), p2);
-        data.remove(p);
-        data.add(index, p2);
-        tv.getSelectionModel().select(index);
+
+
+            if (p == null) {
+            menuBar.getMenus().get(0).disableProperty().set(false);
+            return;
+            }else{
+                menuBar.getMenus().get(0).disableProperty().set(true);
+            }
+
+            int index = data.indexOf(p);
+            Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
+                    major.getText(), email.getText(), imageURL.getText());
+            cnUtil.editUser(p.getId(), p2);
+            data.remove(p);
+            data.add(index, p2);
+            tv.getSelectionModel().select(index);
+
     }
 
     @FXML
     protected void deleteRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
+        if (p == null) {
+            menuBar.getMenus().get(1).disableProperty().set(false);
+            return;
+        }else{
+            menuBar.getMenus().get(1).disableProperty().set(true);
+        }
+
         int index = data.indexOf(p);
         cnUtil.deleteRecord(p);
         data.remove(index);

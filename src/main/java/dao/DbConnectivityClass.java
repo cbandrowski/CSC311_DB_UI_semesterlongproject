@@ -9,13 +9,13 @@ import java.sql.*;
 public class DbConnectivityClass {
     final static String DB_NAME="CSC311_BD_TEMP";
         MyLogger lg= new MyLogger();
-        final static String SQL_SERVER_URL = "jdbc:mysql://server.mariadb.database.azure.com";//update this server name
-        final static String DB_URL = "jdbc:mysql://server.mariadb.database.azure.com/"+DB_NAME;//update this database name
-        final static String USERNAME = "csc311admin@server";// update this username
-        final static String PASSWORD = "FARM";// update this password
+        final static String SQL_SERVER_URL = "jdbc:mysql://bandrowskicsc311server.mysql.database.azure.com";//update this server name
+        final static String DB_URL = "jdbc:mysql://bandrowskicsc311server.mysql.database.azure.com/"+DB_NAME;//update this database name
+        final static String USERNAME = "bandrowskiadmin";// update this username
+        final static String PASSWORD = "Farmingdale24";// update this password
 
 
-        private final ObservableList<Person> data = FXCollections.observableArrayList();
+    private final ObservableList<Person> data = FXCollections.observableArrayList();
 
         // Method to retrieve all data from the database and store it into an observable list to use in the GUI tableview.
 
