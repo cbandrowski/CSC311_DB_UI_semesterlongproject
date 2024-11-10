@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+
 public class MainApplication extends Application {
 
     private static Scene scene;

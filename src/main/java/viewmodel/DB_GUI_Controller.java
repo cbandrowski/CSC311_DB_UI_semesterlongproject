@@ -27,6 +27,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class DB_GUI_Controller implements Initializable {
 
@@ -128,16 +130,99 @@ public class DB_GUI_Controller implements Initializable {
 
     @FXML
     protected void addNewRecord() {
-
-        Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                major.getText(), email.getText(), imageURL.getText());
-        cnUtil.insertUser(p);
-        cnUtil.retrieveId(p);
-        p.setId(cnUtil.retrieveId(p));
-        data.add(p);
-        clearForm();
-
+        String validationMessage = validateFields();
+        if (validationMessage.isEmpty()) {
+            Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
+                    major.getText(), email.getText(), imageURL.getText());
+            cnUtil.insertUser(p);
+            cnUtil.retrieveId(p);
+            p.setId(cnUtil.retrieveId(p));
+            data.add(p);
+            clearForm();
+        } else {
+            showAlert("Invalid Input", validationMessage);
+        }
     }
+
+    private String validateFields() {
+        StringBuilder errors = new StringBuilder();
+
+        String firstNameError = validateName(first_name.getText(), "First Name");
+        String lastNameError = validateName(last_name.getText(), "Last Name");
+        String departmentError = validateDepartment(department.getText());
+        String emailError = validateEmail(email.getText());
+        String imageUrlError = validateImageURL(imageURL.getText());
+
+        if (!firstNameError.isEmpty()) errors.append(firstNameError).append("\n");
+        if (!lastNameError.isEmpty()) errors.append(lastNameError).append("\n");
+        if (!departmentError.isEmpty()) errors.append(departmentError).append("\n");
+        if (!emailError.isEmpty()) errors.append(emailError).append("\n");
+        if (!imageUrlError.isEmpty()) errors.append(imageUrlError).append("\n");
+
+        return errors.toString();
+    }
+
+    private String validateName(String name, String fieldName) {
+        String regex = "^[A-Za-z]+$"; // Alphabetic characters only
+        if (name == null || !name.matches(regex)) {
+            return fieldName + " should only contain alphabetic characters. Provided: " + name;
+        }
+        return "";
+    }
+
+    private String validateDepartment(String department) {
+        String regex = "^[A-Za-z0-9 ]+$"; // Alphanumeric and spaces allowed
+        if (department == null || !department.matches(regex)) {
+            return "Department should only contain alphanumeric characters and spaces. Provided: " + department;
+        }
+        return "";
+    }
+
+    private String validateEmail(String email) {
+        String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"; // Basic email format
+        if (email == null || !email.matches(regex)) {
+            return "Email is invalid. Provided: " + email;
+        }
+        return "";
+    }
+
+    private String validateImageURL(String imageURL) {
+        String regex = "^[\\w-]+\\.(jpg|gif|png)$";
+        if (imageURL == null || !imageURL.matches(regex)) {
+            return "Image URL must be a valid link ending in .jpg, .gif, or .png. Provided: " + imageURL;
+        }
+        return "";
+    }
+
+    @FXML
+    protected void editRecord() {
+        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
+        String validationMessage = validateFields();
+        if (selectedPerson != null && validationMessage.isEmpty()) {
+            Person updatedPerson = new Person(selectedPerson.getId(),
+                    first_name.getText(),
+                    last_name.getText(),
+                    department.getText(),
+                    major.getText(),
+                    email.getText(),
+                    imageURL.getText());
+
+            cnUtil.editUser(selectedPerson.getId(), updatedPerson);
+            int index = data.indexOf(selectedPerson);
+            data.set(index, updatedPerson);
+            tv.getSelectionModel().select(updatedPerson);
+        } else {
+            showAlert("Invalid Input", validationMessage);
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
 
     @FXML
     protected void clearForm() {
@@ -181,30 +266,7 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
-    @FXML
-    protected void editRecord() {
-        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
-        if (selectedPerson != null) {
-            // Create a new Person object with updated details
-            Person updatedPerson = new Person(selectedPerson.getId(),
-                    first_name.getText(),
-                    last_name.getText(),
-                    department.getText(),
-                    major.getText(),
-                    email.getText(),
-                    imageURL.getText());
 
-            // Update the database with the new details
-            cnUtil.editUser(selectedPerson.getId(), updatedPerson);
-
-            // Update the observable list with the new details without adding a new item
-            int index = data.indexOf(selectedPerson);
-            data.set(index, updatedPerson); // Replace the existing entry in the list
-
-            // Refresh selection to show the updated entry in the TableView
-            tv.getSelectionModel().select(updatedPerson);
-        }
-    }
 
 
     @FXML
