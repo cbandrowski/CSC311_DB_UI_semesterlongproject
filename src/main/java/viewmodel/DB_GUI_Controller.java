@@ -2,7 +2,6 @@ package viewmodel;
 
 import dao.DbConnectivityClass;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,7 +29,6 @@ import java.util.ResourceBundle;
 
 public class DB_GUI_Controller implements Initializable {
 
-    public MenuItem ClearItem;
     @FXML
     TextField first_name, last_name, department, major, email, imageURL;
     @FXML
@@ -41,10 +39,6 @@ public class DB_GUI_Controller implements Initializable {
     private TableView<Person> tv;
     @FXML
     private TableColumn<Person, Integer> tv_id;
-    @FXML
-    private Button addBtn, editBtn, deleteBtn,clearBtn;
-    @FXML
-    private MenuItem editItem, deleteItem;
     @FXML
     private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_major, tv_email;
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
@@ -60,82 +54,21 @@ public class DB_GUI_Controller implements Initializable {
             tv_major.setCellValueFactory(new PropertyValueFactory<>("major"));
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
             tv.setItems(data);
-            // Disable Edit and Delete buttons and menu items initially, as no row is selected
-            clearBtn.setDisable(true);
-            addBtn.setDisable(true);
-            editBtn.setDisable(true);
-            deleteBtn.setDisable(true);
-            editItem.setDisable(true);
-            deleteItem.setDisable(true);
-            ClearItem.setDisable(true);
-
-            // Manage button states based on table selection
-            manageButtonStates();
-
-            // Enable/Disable "Add" button based on form input
-            manageAddButtonState();
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    private void manageButtonStates() {
-        // Disable Edit and Delete buttons and menu items if no row is selected in the table
-        tv.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            boolean recordSelected = newSelection != null;
-            editBtn.setDisable(!recordSelected);
-            deleteBtn.setDisable(!recordSelected);
-            editItem.setDisable(!recordSelected);
-            deleteItem.setDisable(!recordSelected);
-        });
-    }
-
-    private void manageAddButtonState() {
-        // Use a listener to monitor form field input and enable the "Add" button when all fields are valid
-        ChangeListener<String> formListener = (observable, oldValue, newValue) -> {
-            addBtn.setDisable(!isFormValid());
-            clearBtn.setDisable(!isAnyFieldFilled());
-        };
-
-        first_name.textProperty().addListener(formListener);
-        last_name.textProperty().addListener(formListener);
-        department.textProperty().addListener(formListener);
-        major.textProperty().addListener(formListener);
-        email.textProperty().addListener(formListener);
-        imageURL.textProperty().addListener(formListener);
-    }
-
-    private boolean isAnyFieldFilled() {
-        // Checks if any field has text to enable the clear button
-        return !first_name.getText().trim().isEmpty() ||
-                !last_name.getText().trim().isEmpty() ||
-                !department.getText().trim().isEmpty() ||
-                !major.getText().trim().isEmpty() ||
-                !email.getText().trim().isEmpty() ||
-                !imageURL.getText().trim().isEmpty();
-    }
-
-    private boolean isFormValid() {
-        // Basic validation: all fields should be non-empty; email should contain "@" as a simplistic check
-        return !first_name.getText().trim().isEmpty() &&
-                !last_name.getText().trim().isEmpty() &&
-                !department.getText().trim().isEmpty() &&
-                !major.getText().trim().isEmpty() &&
-                email.getText().contains("@") &&
-                !imageURL.getText().trim().isEmpty();
-    }
-
 
     @FXML
     protected void addNewRecord() {
 
-        Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                major.getText(), email.getText(), imageURL.getText());
-        cnUtil.insertUser(p);
-        cnUtil.retrieveId(p);
-        p.setId(cnUtil.retrieveId(p));
-        data.add(p);
-        clearForm();
+            Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
+                    major.getText(), email.getText(), imageURL.getText());
+            cnUtil.insertUser(p);
+            cnUtil.retrieveId(p);
+            p.setId(cnUtil.retrieveId(p));
+            data.add(p);
+            clearForm();
 
     }
 
@@ -183,36 +116,39 @@ public class DB_GUI_Controller implements Initializable {
 
     @FXML
     protected void editRecord() {
-        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
-        if (selectedPerson != null) {
-            // Create a new Person object with updated details
-            Person updatedPerson = new Person(selectedPerson.getId(),
-                    first_name.getText(),
-                    last_name.getText(),
-                    department.getText(),
-                    major.getText(),
-                    email.getText(),
-                    imageURL.getText());
+        Person p = tv.getSelectionModel().getSelectedItem();
 
-            // Update the database with the new details
-            cnUtil.editUser(selectedPerson.getId(), updatedPerson);
 
-            // Update the observable list with the new details without adding a new item
-            int index = data.indexOf(selectedPerson);
-            data.set(index, updatedPerson); // Replace the existing entry in the list
+            if (p == null) {
+            menuBar.getMenus().get(0).disableProperty().set(false);
+            return;
+            }else{
+                menuBar.getMenus().get(0).disableProperty().set(true);
+            }
 
-            // Refresh selection to show the updated entry in the TableView
-            tv.getSelectionModel().select(updatedPerson);
-        }
+            int index = data.indexOf(p);
+            Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
+                    major.getText(), email.getText(), imageURL.getText());
+            cnUtil.editUser(p.getId(), p2);
+            data.remove(p);
+            data.add(index, p2);
+            tv.getSelectionModel().select(index);
+
     }
-
 
     @FXML
     protected void deleteRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
+        if (p == null) {
+            menuBar.getMenus().get(1).disableProperty().set(false);
+            return;
+        }else{
+            menuBar.getMenus().get(1).disableProperty().set(true);
+        }
+
         int index = data.indexOf(p);
         cnUtil.deleteRecord(p);
-        data.remove(p);
+        data.remove(index);
         tv.getSelectionModel().select(index);
     }
 
@@ -232,14 +168,12 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     protected void selectedItemTV(MouseEvent mouseEvent) {
         Person p = tv.getSelectionModel().getSelectedItem();
-        if (p != null) {
-            first_name.setText(p.getFirstName());
-            last_name.setText(p.getLastName());
-            department.setText(p.getDepartment());
-            major.setText(p.getMajor());
-            email.setText(p.getEmail());
-            imageURL.setText(p.getImageURL());
-        }
+        first_name.setText(p.getFirstName());
+        last_name.setText(p.getLastName());
+        department.setText(p.getDepartment());
+        major.setText(p.getMajor());
+        email.setText(p.getEmail());
+        imageURL.setText(p.getImageURL());
     }
 
     public void lightTheme(ActionEvent actionEvent) {
