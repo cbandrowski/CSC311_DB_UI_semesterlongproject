@@ -4,6 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Person;
 import service.MyLogger;
+import viewmodel.DB_GUI_Controller.Major;
+
 
 import java.sql.*;
 public class DbConnectivityClass {
@@ -35,7 +37,16 @@ public class DbConnectivityClass {
                     String first_name = resultSet.getString("first_name");
                     String last_name = resultSet.getString("last_name");
                     String department = resultSet.getString("department");
-                    String major = resultSet.getString("major");
+                    String majorStr = resultSet.getString("major");
+                    Major major = null;
+                    try {
+                        if (majorStr != null) {
+                            major = Major.valueOf(majorStr.toUpperCase()); // Convert string to enum
+                        }
+                    } catch (IllegalArgumentException e) {
+                        // Handle case where the database value doesn't match any enum constant
+                        lg.makeLog("Invalid major found in database: " + majorStr);
+                    }
                     String email = resultSet.getString("email");
                     String imageURL = resultSet.getString("imageURL");
                     data.add(new Person(id, first_name, last_name, department, major, email, imageURL));
@@ -158,7 +169,7 @@ public class DbConnectivityClass {
                 preparedStatement.setString(1, person.getFirstName());
                 preparedStatement.setString(2, person.getLastName());
                 preparedStatement.setString(3, person.getDepartment());
-                preparedStatement.setString(4, person.getMajor());
+                preparedStatement.setString(4, person.getMajor() != null ? person.getMajor().name() : null);
                 preparedStatement.setString(5, person.getEmail());
                 preparedStatement.setString(6, person.getImageURL());
                 int row = preparedStatement.executeUpdate();
@@ -181,7 +192,7 @@ public class DbConnectivityClass {
                 preparedStatement.setString(1, p.getFirstName());
                 preparedStatement.setString(2, p.getLastName());
                 preparedStatement.setString(3, p.getDepartment());
-                preparedStatement.setString(4, p.getMajor());
+                preparedStatement.setString(4, p.getMajor() != null ? p.getMajor().name() : null);
                 preparedStatement.setString(5, p.getEmail());
                 preparedStatement.setString(6, p.getImageURL());
                 preparedStatement.setInt(7, id);

@@ -2,6 +2,7 @@ package viewmodel;
 
 import dao.DbConnectivityClass;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -42,15 +44,21 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private TableView<Person> tv;
     @FXML
+    private ComboBox<Major> combo_major;
+    @FXML
+    private TableColumn<Person, String> tv_major;
+
+    @FXML
     private TableColumn<Person, Integer> tv_id;
     @FXML
     private Button addBtn, editBtn, deleteBtn,clearBtn;
     @FXML
     private MenuItem editItem, deleteItem;
     @FXML
-    private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_major, tv_email;
+    private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_email;
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -59,28 +67,26 @@ public class DB_GUI_Controller implements Initializable {
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
             tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
             tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));
-            tv_major.setCellValueFactory(new PropertyValueFactory<>("major"));
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
+
+            // Set items for ComboBox major
+            combo_major.setItems(FXCollections.observableArrayList(Major.values()));
+
+            // Configure tv_major to display the ComboBox as a dropdown
+            tv_major.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMajorAsString()));
+
+            tv_major.setEditable(true);
             tv.setItems(data);
-            // Disable Edit and Delete buttons and menu items initially, as no row is selected
-            clearBtn.setDisable(true);
-            addBtn.setDisable(true);
-            editBtn.setDisable(true);
-            deleteBtn.setDisable(true);
-            editItem.setDisable(true);
-            deleteItem.setDisable(true);
-            ClearItem.setDisable(true);
 
-            // Manage button states based on table selection
+            // Initialize button states and listeners
             manageButtonStates();
-
-            // Enable/Disable "Add" button based on form input
             manageAddButtonState();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
     private void manageButtonStates() {
         // Disable Edit and Delete buttons and menu items if no row is selected in the table
         tv.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -102,9 +108,13 @@ public class DB_GUI_Controller implements Initializable {
         first_name.textProperty().addListener(formListener);
         last_name.textProperty().addListener(formListener);
         department.textProperty().addListener(formListener);
-        major.textProperty().addListener(formListener);
         email.textProperty().addListener(formListener);
         imageURL.textProperty().addListener(formListener);
+        // Add a listener for the ComboBox selection
+        combo_major.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            addBtn.setDisable(!isFormValid());
+            clearBtn.setDisable(!isAnyFieldFilled());
+        });
     }
 
     private boolean isAnyFieldFilled() {
@@ -112,7 +122,7 @@ public class DB_GUI_Controller implements Initializable {
         return !first_name.getText().trim().isEmpty() ||
                 !last_name.getText().trim().isEmpty() ||
                 !department.getText().trim().isEmpty() ||
-                !major.getText().trim().isEmpty() ||
+                combo_major.getSelectionModel().getSelectedItem() != null || // Check ComboBox selection
                 !email.getText().trim().isEmpty() ||
                 !imageURL.getText().trim().isEmpty();
     }
@@ -122,7 +132,7 @@ public class DB_GUI_Controller implements Initializable {
         return !first_name.getText().trim().isEmpty() &&
                 !last_name.getText().trim().isEmpty() &&
                 !department.getText().trim().isEmpty() &&
-                !major.getText().trim().isEmpty() &&
+                combo_major.getSelectionModel().getSelectedItem() != null && // Check ComboBox selection
                 email.getText().contains("@") &&
                 !imageURL.getText().trim().isEmpty();
     }
@@ -132,17 +142,31 @@ public class DB_GUI_Controller implements Initializable {
     protected void addNewRecord() {
         String validationMessage = validateFields();
         if (validationMessage.isEmpty()) {
-            Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                    major.getText(), email.getText(), imageURL.getText());
+            // Retrieve the selected Major enum from the ComboBox
+            Major selectedMajor = combo_major.getSelectionModel().getSelectedItem();
+
+            // Create a new Person object with the selected Major
+            Person p = new Person(
+                    first_name.getText(),
+                    last_name.getText(),
+                    department.getText(),
+                    selectedMajor,  // Use the selected Major enum
+                    email.getText(),
+                    imageURL.getText()
+            );
+
+            // Insert the new user in the database and retrieve the ID
             cnUtil.insertUser(p);
-            cnUtil.retrieveId(p);
             p.setId(cnUtil.retrieveId(p));
+
+            // Add the new person to the data list and clear the form
             data.add(p);
             clearForm();
         } else {
             showAlert("Invalid Input", validationMessage);
         }
     }
+
 
     private String validateFields() {
         StringBuilder errors = new StringBuilder();
@@ -199,14 +223,21 @@ public class DB_GUI_Controller implements Initializable {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
         String validationMessage = validateFields();
         if (selectedPerson != null && validationMessage.isEmpty()) {
-            Person updatedPerson = new Person(selectedPerson.getId(),
+            // Retrieve the selected Major enum from the ComboBox
+            Major selectedMajor = combo_major.getSelectionModel().getSelectedItem();
+
+            // Create a new Person object with the updated information
+            Person updatedPerson = new Person(
+                    selectedPerson.getId(),
                     first_name.getText(),
                     last_name.getText(),
                     department.getText(),
-                    major.getText(),
+                    selectedMajor,  // Use the selected Major enum
                     email.getText(),
-                    imageURL.getText());
+                    imageURL.getText()
+            );
 
+            // Update the user in the database and the table view
             cnUtil.editUser(selectedPerson.getId(), updatedPerson);
             int index = data.indexOf(selectedPerson);
             data.set(index, updatedPerson);
@@ -215,6 +246,7 @@ public class DB_GUI_Controller implements Initializable {
             showAlert("Invalid Input", validationMessage);
         }
     }
+
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -229,10 +261,11 @@ public class DB_GUI_Controller implements Initializable {
         first_name.setText("");
         last_name.setText("");
         department.setText("");
-        major.setText("");
+        combo_major.getSelectionModel().clearSelection(); // Clear the ComboBox selection
         email.setText("");
         imageURL.setText("");
     }
+
 
     @FXML
     protected void logOut(ActionEvent actionEvent) {
@@ -298,11 +331,18 @@ public class DB_GUI_Controller implements Initializable {
             first_name.setText(p.getFirstName());
             last_name.setText(p.getLastName());
             department.setText(p.getDepartment());
-            major.setText(p.getMajor());
+
+            // Set the selected item in the ComboBox instead of setting text
+            if (p.getMajor() != null) {
+                combo_major.getSelectionModel().select(p.getMajor());
+            } else {
+                combo_major.getSelectionModel().clearSelection();
+            }
             email.setText(p.getEmail());
             imageURL.setText(p.getImageURL());
         }
     }
+
 
     public void lightTheme(ActionEvent actionEvent) {
         try {
@@ -329,7 +369,6 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
     public void showSomeone() {
         Dialog<Results> dialog = new Dialog<>();
         dialog.setTitle("New User");
@@ -339,27 +378,27 @@ public class DB_GUI_Controller implements Initializable {
         TextField textField1 = new TextField("Name");
         TextField textField2 = new TextField("Last Name");
         TextField textField3 = new TextField("Email ");
-        ObservableList<Major> options =
-                FXCollections.observableArrayList(Major.values());
+        ObservableList<Major> options = FXCollections.observableArrayList(Major.values());
         ComboBox<Major> comboBox = new ComboBox<>(options);
         comboBox.getSelectionModel().selectFirst();
-        dialogPane.setContent(new VBox(8, textField1, textField2,textField3, comboBox));
+        dialogPane.setContent(new VBox(8, textField1, textField2, textField3, comboBox));
         Platform.runLater(textField1::requestFocus);
+
         dialog.setResultConverter((ButtonType button) -> {
             if (button == ButtonType.OK) {
-                return new Results(textField1.getText(),
-                        textField2.getText(), comboBox.getValue());
+                return new Results(textField1.getText(), textField2.getText(), comboBox.getValue());
             }
             return null;
         });
+
         Optional<Results> optionalResult = dialog.showAndWait();
         optionalResult.ifPresent((Results results) -> {
-            MyLogger.makeLog(
-                    results.fname + " " + results.lname + " " + results.major);
+            MyLogger.makeLog(results.fname + " " + results.lname + " " + results.major);
         });
     }
 
-    private static enum Major {Business, CSC, CPIS}
+
+    public static enum Major {Business, CSC, CPIS}
 
     private static class Results {
 
