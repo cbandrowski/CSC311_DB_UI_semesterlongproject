@@ -1,6 +1,7 @@
 package viewmodel;
 
 import dao.DbConnectivityClass;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -21,6 +22,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.Person;
 import service.MyLogger;
 
@@ -43,6 +45,9 @@ public class DB_GUI_Controller implements Initializable {
     MenuBar menuBar;
     @FXML
     private TableView<Person> tv;
+    @FXML
+    private Label statusLabel;
+
     @FXML
     private ComboBox<Major> combo_major;
     @FXML
@@ -136,36 +141,72 @@ public class DB_GUI_Controller implements Initializable {
                 email.getText().contains("@") &&
                 !imageURL.getText().trim().isEmpty();
     }
+    private void showTemporaryStatus(String message) {
+        statusLabel.setText(message);
+        statusLabel.setVisible(true);
 
+        // Hide the status label after 3 seconds
+        PauseTransition pause = new PauseTransition(Duration.seconds(3));
+        pause.setOnFinished(event -> statusLabel.setVisible(false));
+        pause.play();
+    }
 
     @FXML
     protected void addNewRecord() {
         String validationMessage = validateFields();
         if (validationMessage.isEmpty()) {
-            // Retrieve the selected Major enum from the ComboBox
             Major selectedMajor = combo_major.getSelectionModel().getSelectedItem();
-
-            // Create a new Person object with the selected Major
             Person p = new Person(
                     first_name.getText(),
                     last_name.getText(),
                     department.getText(),
-                    selectedMajor,  // Use the selected Major enum
+                    selectedMajor,
                     email.getText(),
                     imageURL.getText()
             );
 
-            // Insert the new user in the database and retrieve the ID
             cnUtil.insertUser(p);
             p.setId(cnUtil.retrieveId(p));
-
-            // Add the new person to the data list and clear the form
             data.add(p);
             clearForm();
+
+            // Show success message temporarily
+            showTemporaryStatus("Record added successfully.");
         } else {
             showAlert("Invalid Input", validationMessage);
+            showTemporaryStatus("Error: " + validationMessage); // Show validation error message temporarily
         }
     }
+
+    @FXML
+    protected void editRecord() {
+        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
+        String validationMessage = validateFields();
+        if (selectedPerson != null && validationMessage.isEmpty()) {
+            Major selectedMajor = combo_major.getSelectionModel().getSelectedItem();
+            Person updatedPerson = new Person(
+                    selectedPerson.getId(),
+                    first_name.getText(),
+                    last_name.getText(),
+                    department.getText(),
+                    selectedMajor,
+                    email.getText(),
+                    imageURL.getText()
+            );
+
+            cnUtil.editUser(selectedPerson.getId(), updatedPerson);
+            int index = data.indexOf(selectedPerson);
+            data.set(index, updatedPerson);
+            tv.getSelectionModel().select(updatedPerson);
+
+            // Show success message temporarily
+            showTemporaryStatus("Record updated successfully.");
+        } else {
+            showAlert("Invalid Input", validationMessage);
+            showTemporaryStatus("Error: " + validationMessage); // Show validation error message temporarily
+        }
+    }
+
 
 
     private String validateFields() {
@@ -217,36 +258,6 @@ public class DB_GUI_Controller implements Initializable {
         }
         return "";
     }
-
-    @FXML
-    protected void editRecord() {
-        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
-        String validationMessage = validateFields();
-        if (selectedPerson != null && validationMessage.isEmpty()) {
-            // Retrieve the selected Major enum from the ComboBox
-            Major selectedMajor = combo_major.getSelectionModel().getSelectedItem();
-
-            // Create a new Person object with the updated information
-            Person updatedPerson = new Person(
-                    selectedPerson.getId(),
-                    first_name.getText(),
-                    last_name.getText(),
-                    department.getText(),
-                    selectedMajor,  // Use the selected Major enum
-                    email.getText(),
-                    imageURL.getText()
-            );
-
-            // Update the user in the database and the table view
-            cnUtil.editUser(selectedPerson.getId(), updatedPerson);
-            int index = data.indexOf(selectedPerson);
-            data.set(index, updatedPerson);
-            tv.getSelectionModel().select(updatedPerson);
-        } else {
-            showAlert("Invalid Input", validationMessage);
-        }
-    }
-
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
