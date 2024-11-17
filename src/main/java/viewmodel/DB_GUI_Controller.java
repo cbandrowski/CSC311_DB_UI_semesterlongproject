@@ -29,9 +29,7 @@ import javafx.util.Duration;
 import model.Person;
 import service.MyLogger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDate;
@@ -465,6 +463,67 @@ public class DB_GUI_Controller implements Initializable {
         };
     }
 
+    @FXML
+    public void importCSV(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showOpenDialog(tv.getScene().getWindow());
+
+        if (file != null) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] fields = line.split(","); // Assumes CSV fields are separated by commas
+                    if (fields.length >= 6) { // Ensure at least 6 fields (adjust based on CSV structure)
+                        String firstName = fields[0].trim();
+                        String lastName = fields[1].trim();
+                        String department = fields[2].trim();
+                        Major major = Major.valueOf(fields[3].trim()); // Enum lookup
+                        String email = fields[4].trim();
+                        String imageURL = fields[5].trim();
+
+                        // Add to database and table view
+                        Person person = new Person(firstName, lastName, department, major, email, imageURL);
+                        cnUtil.insertUser(person);
+                        person.setId(cnUtil.retrieveId(person));
+                        data.add(person);
+                    }
+                }
+                showTemporaryStatus("CSV imported successfully.");
+            } catch (Exception e) {
+                showAlert("Error", "Failed to import CSV: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    @FXML
+    public void exportCSV(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showSaveDialog(tv.getScene().getWindow());
+
+        if (file != null) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (Person person : data) {
+                    String line = String.format("%s,%s,%s,%s,%s,%s",
+                            person.getFirstName(),
+                            person.getLastName(),
+                            person.getDepartment(),
+                            person.getMajor().name(), // Convert Enum to String
+                            person.getEmail(),
+                            person.getImageURL());
+                    writer.write(line);
+                    writer.newLine();
+                }
+                showTemporaryStatus("CSV exported successfully.");
+            } catch (Exception e) {
+                showAlert("Error", "Failed to export CSV: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 
 
     public static enum Major {Business, CSC, CPIS}
