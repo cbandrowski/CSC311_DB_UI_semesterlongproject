@@ -1,5 +1,4 @@
 package viewmodel;
-
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,20 +7,28 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
+import service.UserSession;
 
 
 public class LoginController {
-
+    @FXML
+    private GridPane root_pane;
 
     @FXML
-    private GridPane rootpane;
+    private TextField usernameField;
+
+    @FXML
+    private PasswordField passwordField;
+
     public void initialize() {
-        rootpane.setBackground(new Background(
+        root_pane.setBackground(new Background(
                         createImage("https://edencoding.com/wp-content/uploads/2021/03/layer_06_1920x1080.png"),
                         null,
                         null,
@@ -31,13 +38,13 @@ public class LoginController {
                 )
         );
 
-
-        rootpane.setOpacity(0);
-        FadeTransition fadeOut2 = new FadeTransition(Duration.seconds(10), rootpane);
+        root_pane.setOpacity(0);
+        FadeTransition fadeOut2 = new FadeTransition(Duration.seconds(10), root_pane);
         fadeOut2.setFromValue(0);
         fadeOut2.setToValue(1);
         fadeOut2.play();
     }
+
     private static BackgroundImage createImage(String url) {
         return new BackgroundImage(
                 new Image(url),
@@ -45,20 +52,34 @@ public class LoginController {
                 new BackgroundPosition(Side.LEFT, 0, true, Side.BOTTOM, 0, true),
                 new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true));
     }
+
     @FXML
     public void login(ActionEvent actionEvent) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
-            Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
-            Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-            window.setScene(scene);
-            window.show();
-        } catch (Exception e) {
-            e.printStackTrace();
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Login Failed", "Both fields must be filled.");
+            return;
+        }
+
+        UserSession userSession = UserSession.getInstance("", "");
+        if (userSession.validateCredentials(username, password)) {
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
+                Scene scene = new Scene(root, 900, 600);
+                scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+                Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                window.setScene(scene);
+                window.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid Username or Password.");
         }
     }
-
+    @FXML
     public void signUp(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/signUp.fxml"));
@@ -72,5 +93,10 @@ public class LoginController {
         }
     }
 
-
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }

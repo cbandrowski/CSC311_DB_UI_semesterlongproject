@@ -17,22 +17,27 @@ public class UserSession {
         this.userName = userName;
         this.password = password;
         this.privileges = privileges;
+        saveCredentials(userName, password, privileges);
+
+
+    }
+    private void saveCredentials(String username, String password, String privileges) {
         Preferences userPreferences = Preferences.userRoot();
-        userPreferences.put("USERNAME",userName);
-        userPreferences.put("PASSWORD",password);
-        userPreferences.put("PRIVILEGES",privileges);
+        userPreferences.put("USERNAME", username);
+        userPreferences.put("PASSWORD", password);
+        userPreferences.put("PRIVILEGES", privileges);
     }
 
 
 
-    public static UserSession getInstace(String userName,String password, String privileges) {
+    public static UserSession getInstance(String userName,String password, String privileges) {
         if(instance == null) {
             instance = new UserSession(userName, password, privileges);
         }
         return instance;
     }
 
-    public static UserSession getInstace(String userName,String password) {
+    public static UserSession getInstance(String userName,String password) {
         if(instance == null) {
             instance = new UserSession(userName, password, "NONE");
         }
@@ -54,6 +59,12 @@ public class UserSession {
         this.userName = "";// or null
         this.password = "";
         this.privileges = "";// or null
+    }
+    public boolean validateCredentials(String username, String password) {
+        Preferences userPreferences = Preferences.userRoot();
+        String storedUsername = userPreferences.get("USERNAME", "");
+        String storedPassword = userPreferences.get("PASSWORD", "");
+        return username.equals(storedUsername) && password.equals(storedPassword);
     }
 
     @Override

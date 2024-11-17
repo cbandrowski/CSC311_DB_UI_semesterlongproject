@@ -1,12 +1,15 @@
 package viewmodel;
 
+import com.azure.storage.blob.BlobClient;
 import dao.DbConnectivityClass;
+import dao.StorageUploader;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,7 +30,10 @@ import model.Person;
 import service.MyLogger;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -35,6 +41,8 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class DB_GUI_Controller implements Initializable {
+    StorageUploader store = new StorageUploader();
+    ProgressBar progressBar ;
 
     public MenuItem ClearItem;
     @FXML
@@ -327,6 +335,10 @@ public class DB_GUI_Controller implements Initializable {
         File file = (new FileChooser()).showOpenDialog(img_view.getScene().getWindow());
         if (file != null) {
             img_view.setImage(new Image(file.toURI().toString()));
+                        Task<Void> uploadTask = createUploadTask(file, progressBar);
+            progressBar.progressProperty().bind(uploadTask.progressProperty());
+            new Thread(uploadTask).start();
+
         }
     }
 
@@ -407,6 +419,52 @@ public class DB_GUI_Controller implements Initializable {
             MyLogger.makeLog(results.fname + " " + results.lname + " " + results.major);
         });
     }
+
+//    public void largeFileHandler(ActionEvent actionEvent) {
+//        File filelarge = new FileChooser().showOpenDialog(img_view.getScene().getWindow());
+//        if (file != null) {
+//            Task<Void> uploadTask = createUploadTask(filelarge, progressBar);
+//            progressBar.progressProperty().bind(uploadTask.progressProperty());
+//            new Thread(uploadTask).start();
+//            img_view.setImage(new Image(filelarge.toURI().toString()));
+//        }
+//
+//    }
+
+    public void exportHandler(ActionEvent actionEvent) {
+    }
+
+    public void importHandler(ActionEvent actionEvent) {
+    }
+    private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
+        return new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                BlobClient blobClient = store.getContainerClient().getBlobClient(file.getName());
+                long fileSize = Files.size(file.toPath());
+                long uploadedBytes = 0;
+
+                try (FileInputStream fileInputStream = new FileInputStream(file);
+                     OutputStream blobOutputStream = blobClient.getBlockBlobClient().getBlobOutputStream()) {
+
+                    byte[] buffer = new byte[1024 * 1024]; // 1 MB buffer size
+                    int bytesRead;
+
+                    while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                        blobOutputStream.write(buffer, 0, bytesRead);
+                        uploadedBytes += bytesRead;
+
+                        // Calculate and update progress as a percentage
+                        int progress = (int) ((double) uploadedBytes / fileSize * 100);
+                        updateProgress(progress, 100);
+                    }
+                }
+
+                return null;
+            }
+        };
+    }
+
 
 
     public static enum Major {Business, CSC, CPIS}
