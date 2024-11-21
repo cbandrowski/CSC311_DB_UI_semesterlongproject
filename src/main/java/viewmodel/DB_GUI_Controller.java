@@ -5,6 +5,7 @@ import dao.DbConnectivityClass;
 import dao.StorageUploader;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -19,6 +20,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -28,6 +30,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import model.Person;
 import service.MyLogger;
+import service.UserSession;
 
 import java.io.*;
 import java.net.URL;
@@ -39,8 +42,10 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class DB_GUI_Controller implements Initializable {
+    public MenuItem CopyItem;
+    public Label userNameLabel;
     StorageUploader store = new StorageUploader();
-    ProgressBar progressBar ;
+    ProgressBar progressBar;
 
     public MenuItem ClearItem;
     @FXML
@@ -57,12 +62,12 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private ComboBox<Major> combo_major;
     @FXML
-    private TableColumn<Person, String> tv_major;
+    private TableColumn<Person, Major> tv_major;
 
     @FXML
     private TableColumn<Person, Integer> tv_id;
     @FXML
-    private Button addBtn, editBtn, deleteBtn,clearBtn;
+    private Button addBtn, editBtn, deleteBtn, clearBtn;
     @FXML
     private MenuItem editItem, deleteItem;
     @FXML
@@ -71,33 +76,115 @@ public class DB_GUI_Controller implements Initializable {
     private final ObservableList<Person> data = cnUtil.getData();
 
 
-    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        initializeTableView();
+        initializeComboBox();
+        initializeSession();
+        tv.setOnMouseClicked(this::selectedItemTV);
+
+
+        // Manage button states based on input and selection
+        manageButtonStates();
+        manageAddButtonState();
+    }
+
+    private void initializeTableView() {
         try {
+            // Set up columns for TableView
             tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
             tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
             tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
+            tv_major.setCellValueFactory(cellData ->
+                    new SimpleObjectProperty<>(cellData.getValue().getMajor())
+            );
 
-            // Set items for ComboBox major
-            combo_major.setItems(FXCollections.observableArrayList(Major.values()));
-
-            // Configure tv_major to display the ComboBox as a dropdown
-            tv_major.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMajorAsString()));
-
-            tv_major.setEditable(true);
             tv.setItems(data);
+            tv.setEditable(true);
 
-            // Initialize button states and listeners
-            manageButtonStates();
-            manageAddButtonState();
+            // Enable column-specific editing
+            setTableColumnsEditable();
 
+            // Allow adding new rows by clicking empty space
+            tv.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && tv.getSelectionModel().getSelectedItem() == null) {
+                    Person newPerson = new Person();
+                    data.add(newPerson);
+                    tv.getSelectionModel().select(newPerson);
+                    tv.scrollTo(newPerson);
+                }
+            });
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error initializing TableView: " + e.getMessage());
         }
     }
 
+
+    private void setTableColumnsEditable() {
+        // Make text columns editable
+        tv_fn.setCellFactory(TextFieldTableCell.forTableColumn());
+        tv_fn.setOnEditCommit(event -> {
+            Person person = event.getRowValue();
+            person.setFirstName(event.getNewValue());
+            updateDatabase(person);
+        });
+
+        tv_ln.setCellFactory(TextFieldTableCell.forTableColumn());
+        tv_ln.setOnEditCommit(event -> {
+            Person person = event.getRowValue();
+            person.setLastName(event.getNewValue());
+            updateDatabase(person);
+        });
+
+        tv_department.setCellFactory(TextFieldTableCell.forTableColumn());
+        tv_department.setOnEditCommit(event -> {
+            Person person = event.getRowValue();
+            person.setDepartment(event.getNewValue());
+            updateDatabase(person);
+        });
+
+        tv_email.setCellFactory(TextFieldTableCell.forTableColumn());
+        tv_email.setOnEditCommit(event -> {
+            Person person = event.getRowValue();
+            person.setEmail(event.getNewValue());
+            updateDatabase(person);
+        });
+
+        // Make Major column editable with ComboBox
+        tv_major.setCellFactory(ComboBoxTableCell.forTableColumn(
+                FXCollections.observableArrayList(Major.values())
+        ));
+        tv_major.setOnEditCommit(event -> {
+            Person person = event.getRowValue();
+            person.setMajor(event.getNewValue());
+            updateDatabase(person);
+        });
+    }
+
+
+    private void updateDatabase(Person person) {
+        try {
+            cnUtil.editUser(person.getId(), person);
+            showTemporaryStatus("Record updated successfully.");
+        } catch (Exception e) {
+            showAlert("Update Error", "Failed to update the record in the database.");
+            e.printStackTrace();
+        }
+    }
+    private void initializeComboBox() {
+        combo_major.setItems(FXCollections.observableArrayList(Major.values()));
+    }
+    private void initializeSession() {
+        UserSession currentSession = UserSession.getCurrentSession();
+        if (currentSession != null) {
+            System.out.println("Logged in as: " + currentSession.getUserName());
+            userNameLabel.setText(currentSession.getUserName());
+        } else {
+            System.out.println("No active session. Redirecting to login...");
+            logout(null);
+        }
+    }
     private void manageButtonStates() {
         // Disable Edit and Delete buttons and menu items if no row is selected in the table
         tv.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -108,7 +195,6 @@ public class DB_GUI_Controller implements Initializable {
             deleteItem.setDisable(!recordSelected);
         });
     }
-
     private void manageAddButtonState() {
         // Use a listener to monitor form field input and enable the "Add" button when all fields are valid
         ChangeListener<String> formListener = (observable, oldValue, newValue) -> {
@@ -127,7 +213,6 @@ public class DB_GUI_Controller implements Initializable {
             clearBtn.setDisable(!isAnyFieldFilled());
         });
     }
-
     private boolean isAnyFieldFilled() {
         // Checks if any field has text to enable the clear button
         return !first_name.getText().trim().isEmpty() ||
@@ -137,7 +222,6 @@ public class DB_GUI_Controller implements Initializable {
                 !email.getText().trim().isEmpty() ||
                 !imageURL.getText().trim().isEmpty();
     }
-
     private boolean isFormValid() {
         // Basic validation: all fields should be non-empty; email should contain "@" as a simplistic check
         return !first_name.getText().trim().isEmpty() &&
@@ -156,7 +240,6 @@ public class DB_GUI_Controller implements Initializable {
         pause.setOnFinished(event -> statusLabel.setVisible(false));
         pause.play();
     }
-
     @FXML
     protected void addNewRecord() {
         String validationMessage = validateFields();
@@ -183,7 +266,6 @@ public class DB_GUI_Controller implements Initializable {
             showTemporaryStatus("Error: " + validationMessage); // Show validation error message temporarily
         }
     }
-
     @FXML
     protected void editRecord() {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
@@ -212,9 +294,6 @@ public class DB_GUI_Controller implements Initializable {
             showTemporaryStatus("Error: " + validationMessage); // Show validation error message temporarily
         }
     }
-
-
-
     private String validateFields() {
         StringBuilder errors = new StringBuilder();
 
@@ -232,7 +311,6 @@ public class DB_GUI_Controller implements Initializable {
 
         return errors.toString();
     }
-
     private String validateName(String name, String fieldName) {
         String regex = "^[A-Za-z]+$"; // Alphabetic characters only
         if (name == null || !name.matches(regex)) {
@@ -240,7 +318,6 @@ public class DB_GUI_Controller implements Initializable {
         }
         return "";
     }
-
     private String validateDepartment(String department) {
         String regex = "^[A-Za-z0-9 ]+$"; // Alphanumeric and spaces allowed
         if (department == null || !department.matches(regex)) {
@@ -248,7 +325,6 @@ public class DB_GUI_Controller implements Initializable {
         }
         return "";
     }
-
     private String validateEmail(String email) {
         String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"; // Basic email format
         if (email == null || !email.matches(regex)) {
@@ -256,7 +332,6 @@ public class DB_GUI_Controller implements Initializable {
         }
         return "";
     }
-
     private String validateImageURL(String imageURL) {
         String regex = "^[\\w-]+\\.(jpg|gif|png)$";
         if (imageURL == null || !imageURL.matches(regex)) {
@@ -264,15 +339,12 @@ public class DB_GUI_Controller implements Initializable {
         }
         return "";
     }
-
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setContentText(content);
         alert.showAndWait();
     }
-
-
     @FXML
     protected void clearForm() {
         first_name.setText("");
@@ -282,10 +354,8 @@ public class DB_GUI_Controller implements Initializable {
         email.setText("");
         imageURL.setText("");
     }
-
-
     @FXML
-    protected void logOut(ActionEvent actionEvent) {
+    protected void logout(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/login.fxml"));
             Scene scene = new Scene(root, 900, 600);
@@ -297,12 +367,10 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
     @FXML
     protected void closeApplication() {
         System.exit(0);
     }
-
     @FXML
     protected void displayAbout() {
         try {
@@ -315,10 +383,6 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
-
-
-
     @FXML
     protected void deleteRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
@@ -327,7 +391,6 @@ public class DB_GUI_Controller implements Initializable {
         data.remove(p);
         tv.getSelectionModel().select(index);
     }
-
     @FXML
     protected void showImage() {
         File file = (new FileChooser()).showOpenDialog(img_view.getScene().getWindow());
@@ -339,12 +402,10 @@ public class DB_GUI_Controller implements Initializable {
 
         }
     }
-
     @FXML
     protected void addRecord() {
         showSomeone();
     }
-
     @FXML
     protected void selectedItemTV(MouseEvent mouseEvent) {
         Person p = tv.getSelectionModel().getSelectedItem();
@@ -363,8 +424,6 @@ public class DB_GUI_Controller implements Initializable {
             imageURL.setText(p.getImageURL());
         }
     }
-
-
     public void lightTheme(ActionEvent actionEvent) {
         try {
             Scene scene = menuBar.getScene();
@@ -379,7 +438,6 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
     public void darkTheme(ActionEvent actionEvent) {
         try {
             Stage stage = (Stage) menuBar.getScene().getWindow();
@@ -417,23 +475,6 @@ public class DB_GUI_Controller implements Initializable {
             MyLogger.makeLog(results.fname + " " + results.lname + " " + results.major);
         });
     }
-
-//    public void largeFileHandler(ActionEvent actionEvent) {
-//        File filelarge = new FileChooser().showOpenDialog(img_view.getScene().getWindow());
-//        if (file != null) {
-//            Task<Void> uploadTask = createUploadTask(filelarge, progressBar);
-//            progressBar.progressProperty().bind(uploadTask.progressProperty());
-//            new Thread(uploadTask).start();
-//            img_view.setImage(new Image(filelarge.toURI().toString()));
-//        }
-//
-//    }
-
-    public void exportHandler(ActionEvent actionEvent) {
-    }
-
-    public void importHandler(ActionEvent actionEvent) {
-    }
     private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
         return new Task<>() {
             @Override
@@ -462,7 +503,6 @@ public class DB_GUI_Controller implements Initializable {
             }
         };
     }
-
     @FXML
     public void importCSV(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
@@ -496,8 +536,6 @@ public class DB_GUI_Controller implements Initializable {
             }
         }
     }
-
-
     @FXML
     public void exportCSV(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
@@ -524,10 +562,7 @@ public class DB_GUI_Controller implements Initializable {
             }
         }
     }
-
-
     public static enum Major {Business, CSC, CPIS}
-
     private static class Results {
 
         String fname;

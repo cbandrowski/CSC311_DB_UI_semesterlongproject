@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -63,29 +64,24 @@ public class LoginController {
             return;
         }
 
-        UserSession userSession = UserSession.getInstance("", "");
-        if (userSession.validateCredentials(username, password)) {
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
-                Scene scene = new Scene(root, 900, 600);
-                scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
-                Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-                window.setScene(scene);
-                window.show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (UserSession.validateCredentials(username, password)) {
+            UserSession.saveCredentials(username, "USER");
+            loadView("/view/db_interface_gui.fxml", actionEvent);
         } else {
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid Username or Password.");
         }
     }
+
     @FXML
     public void signUp(ActionEvent actionEvent) {
+        loadView("/view/signUp.fxml", actionEvent);
+    }
+
+    private void loadView(String fxmlPath, ActionEvent actionEvent) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/signUp.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
             Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
-            Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+            Stage window = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
             window.setScene(scene);
             window.show();
         } catch (Exception e) {
