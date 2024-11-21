@@ -84,6 +84,8 @@ public class DB_GUI_Controller implements Initializable {
 
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        applyDarkTheme();
+
         initializeTableView();
         initializeComboBox();
         initializeSession();
@@ -94,7 +96,18 @@ public class DB_GUI_Controller implements Initializable {
         manageButtonStates();
         manageAddButtonState();
     }
-
+    private void applyDarkTheme() {
+        // Ensure the Scene is available
+        Platform.runLater(() -> {
+            Scene scene = menuBar.getScene();
+            if (scene != null) {
+                // Add the dark theme CSS
+                scene.getStylesheets().add(getClass().getResource("/css/darktheme.css").toExternalForm());
+            } else {
+                System.err.println("Scene is not ready. Dark theme was not applied.");
+            }
+        });
+    }
     private void initializeTableView() {
         try {
             // Set up columns for TableView
