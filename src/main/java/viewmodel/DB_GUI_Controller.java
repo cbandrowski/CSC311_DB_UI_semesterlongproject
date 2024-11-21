@@ -1,6 +1,7 @@
 package viewmodel;
 
 import com.azure.storage.blob.BlobClient;
+import com.itextpdf.text.*;
 import dao.DbConnectivityClass;
 import dao.StorageUploader;
 import javafx.animation.PauseTransition;
@@ -31,11 +32,17 @@ import javafx.util.Duration;
 import model.Person;
 import service.MyLogger;
 import service.UserSession;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
@@ -562,6 +569,63 @@ public class DB_GUI_Controller implements Initializable {
             }
         }
     }
+
+    @FXML
+    public void pdfMajorNum(ActionEvent actionEvent) {
+        // Count students by major
+        Map<Major, Integer> majorCounts = new HashMap<>();
+        for (Person person : data) {
+            Major major = person.getMajor();
+            majorCounts.put(major, majorCounts.getOrDefault(major, 0) + 1);
+        }
+
+        // Use FileChooser for saving the PDF
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save PDF Report");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        File file = fileChooser.showSaveDialog(tv.getScene().getWindow());
+
+        if (file == null) return; // User canceled
+
+        // Create a PDF document
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream(file));
+            document.open();
+
+            // Add title
+            Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
+            document.add(new Paragraph("Number of Students by Major", titleFont));
+            document.add(new Paragraph("\n"));
+
+            // Add table
+            PdfPTable table = new PdfPTable(2); // Two columns: Major and Count
+            table.addCell("Major");
+            table.addCell("Count");
+            for (Map.Entry<Major, Integer> entry : majorCounts.entrySet()) {
+                table.addCell(entry.getKey() != null ? entry.getKey().name() : "Unknown");
+                table.addCell(String.valueOf(entry.getValue()));
+            }
+            document.add(table);
+
+            // Add timestamp
+            document.add(new Paragraph("\n"));
+            Paragraph timestamp = new Paragraph("Generated on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            timestamp.setAlignment(Element.ALIGN_RIGHT);
+            document.add(timestamp);
+
+            // Success message
+            showTemporaryStatus("PDF report generated successfully.");
+        } catch (DocumentException | IOException e) {
+            showAlert("PDF Generation Error", "Failed to generate the PDF report: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            document.close();
+        }
+    }
+
+
+
     public static enum Major {Business, CSC, CPIS}
     private static class Results {
 

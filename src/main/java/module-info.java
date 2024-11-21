@@ -5,6 +5,7 @@ module com.example.csc311_db_ui_semesterlongproject {
     requires com.azure.storage.blob;
     requires java.desktop;
     requires java.prefs;
+    requires itextpdf;
 
     opens viewmodel;
     exports viewmodel;
