@@ -4,12 +4,14 @@ import com.azure.storage.blob.BlobClient;
 import com.itextpdf.text.*;
 import dao.DbConnectivityClass;
 import dao.StorageUploader;
+import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -18,12 +20,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -51,6 +57,7 @@ import java.util.regex.Matcher;
 public class DB_GUI_Controller implements Initializable {
     public MenuItem CopyItem;
     public Label userNameLabel;
+    public PieChart majorPieChart;
     StorageUploader store = new StorageUploader();
     @FXML
     ProgressBar progressBar;
@@ -88,16 +95,31 @@ public class DB_GUI_Controller implements Initializable {
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         applyDarkTheme();
-
+        initializePieChart(); // Initialize the PieChart
+        initializeButtons();
         initializeTableView();
         initializeComboBox();
         initializeSession();
+        manageMenuButton();
         tv.setOnMouseClicked(this::selectedItemTV);
 
 
         // Manage button states based on input and selection
         manageButtonStates();
         manageAddButtonState();
+    }
+    private void initializeButtons(){
+        // Keyboard shortcuts for menu items
+        editItem.setAccelerator(KeyCombination.keyCombination("Ctrl+E"));
+        deleteItem.setAccelerator(KeyCombination.keyCombination("Ctrl+D"));
+        ClearItem.setAccelerator(KeyCombination.keyCombination("Ctrl+R"));
+        CopyItem.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+
+        // Map menu items to actions
+        editItem.setOnAction(event -> editRecord());
+        deleteItem.setOnAction(event -> deleteRecord());
+        ClearItem.setOnAction(event -> clearForm());
+        CopyItem.setOnAction(event -> copySelectedRecord());
     }
     private void applyDarkTheme() {
         // Ensure the Scene is available
@@ -143,6 +165,12 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
+    private void initializePieChart() {
+        updatePieChart(); // Populate initially
+
+        // Add listener to data changes to refresh the PieChart
+        data.addListener((ListChangeListener<Person>) change -> updatePieChart());
+    }
 
     private void setTableColumnsEditable() {
         // Make text columns editable
@@ -185,6 +213,24 @@ public class DB_GUI_Controller implements Initializable {
         });
     }
 
+    private void updatePieChart() {
+        Map<Major, Integer> majorCounts = new HashMap<>();
+        for (Person person : data) {
+            Major major = person.getMajor();
+            majorCounts.put(major, majorCounts.getOrDefault(major, 0) + 1);
+        }
+
+        // Create PieChart data
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        for (Map.Entry<Major, Integer> entry : majorCounts.entrySet()) {
+            String majorName = entry.getKey() != null ? entry.getKey().name() : "Unknown";
+            int count = entry.getValue();
+            pieChartData.add(new PieChart.Data(majorName, count));
+        }
+
+        // Update PieChart
+        majorPieChart.setData(pieChartData);
+    }
 
     private void updateDatabase(Person person) {
         try {
@@ -240,6 +286,26 @@ public class DB_GUI_Controller implements Initializable {
             clearBtn.setDisable(!isAnyFieldFilled());
         });
     }
+    private void manageMenuButton() {
+        // Enable/disable buttons and menu items based on selection
+        tv.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            boolean isSelected = newSelection != null;
+
+            // Buttons
+            editBtn.setDisable(!isSelected);
+            deleteBtn.setDisable(!isSelected);
+            clearBtn.setDisable(!isSelected);
+
+            // Menu items
+            editItem.setDisable(!isSelected);
+            deleteItem.setDisable(!isSelected);
+            ClearItem.setDisable(!isSelected);
+            CopyItem.setDisable(!isSelected);
+        });
+    }
+
+
+
     private boolean isAnyFieldFilled() {
         // Checks if any field has text to enable the clear button
         return !first_name.getText().trim().isEmpty() ||
@@ -286,6 +352,8 @@ public class DB_GUI_Controller implements Initializable {
             data.add(p);
             clearForm();
 
+            // Update PieChart
+            updatePieChart();
             // Show success message temporarily
             showTemporaryStatus("Record added successfully.");
         } else {
@@ -313,6 +381,8 @@ public class DB_GUI_Controller implements Initializable {
             int index = data.indexOf(selectedPerson);
             data.set(index, updatedPerson);
             tv.getSelectionModel().select(updatedPerson);
+            updatePieChart();
+
 
             // Show success message temporarily
             showTemporaryStatus("Record updated successfully.");
@@ -416,6 +486,8 @@ public class DB_GUI_Controller implements Initializable {
         int index = data.indexOf(p);
         cnUtil.deleteRecord(p);
         data.remove(p);
+        updatePieChart();
+
         tv.getSelectionModel().select(index);
     }
     @FXML
@@ -655,6 +727,20 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         } finally {
             document.close();
+        }
+    }
+
+    @FXML
+    protected void copySelectedRecord() {
+        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
+        if (selectedPerson != null) {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedPerson.toString()); // Customize toString() in `Person` if needed
+            clipboard.setContent(content);
+            showTemporaryStatus("Record copied to clipboard.");
+        } else {
+            showAlert("No Selection", "Please select a record to copy.");
         }
     }
 

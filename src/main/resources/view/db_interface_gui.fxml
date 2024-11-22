@@ -5,6 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.chart.PieChart?>
 <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="920.0" styleClass="anchor_pane" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.DB_GUI_Controller">
     <children>
         <BorderPane fx:id="borderPane" layoutX="-2.0" layoutY="-3.0" prefHeight="597.0" prefWidth="908.0">
@@ -24,7 +25,7 @@
                                 <MenuItem fx:id="editItem" mnemonicParsing="false" styleClass="menu_items" text="Edit      Ctrl+E" />
                                 <MenuItem fx:id="deleteItem" mnemonicParsing="false" styleClass="menu_items" text="Delete    Ctrl+D" />
                                 <MenuItem fx:id="ClearItem" mnemonicParsing="false" styleClass="menu_items" text="Clear     Ctrl+R" />
-                                <MenuItem fx:id="CopyItem" mnemonicParsing="false" styleClass="menu_items" text="Copy      Ctrl+C" />
+                                <MenuItem fx:id="CopyItem" mnemonicParsing="false" styleClass="menu_items" onAction="#copySelectedRecord" text="Copy      Ctrl+C" />
                             </items>
                         </Menu>
 
@@ -55,19 +56,25 @@
                 </MenuBar>
             </top>
             <left>
-                <VBox prefHeight="540.0" prefWidth="132.0" styleClass="left_pane" BorderPane.alignment="CENTER">
+                <VBox prefHeight="540.0" prefWidth="100.0" styleClass="left_pane" spacing="10" alignment="CENTER" BorderPane.alignment="CENTER">
                     <children>
-                        <AnchorPane prefHeight="215.0" prefWidth="88.0">
+                        <AnchorPane prefHeight="215.0" prefWidth="100.0">
                             <children>
-                                <ImageView fx:id="img_view" fitHeight="111.0" fitWidth="122.0" layoutX="10.0" layoutY="11.0" onMouseClicked="#showImage" pickOnBounds="true" preserveRatio="true" styleClass="image_view">
-                                    <image>
-                                        <Image url="@../images/profile.png" />
-                                    </image>
-                                </ImageView>
-                                <ProgressBar fx:id="progressBar" visible="false" layoutX="28.0" />
-                                <Label fx:id="userNameLabel" layoutX="22.0" layoutY="122.0" prefHeight="17.0" prefWidth="92.0" text=" "  />
+                                <!-- ImageView for profile image -->
+                                <ImageView fx:id="img_view" fitHeight="120.0" layoutX="10.0" layoutY="10.0"
+                                           onMouseClicked="#showImage" pickOnBounds="true" preserveRatio="true" styleClass="image_view" />
+
+                                <!-- Username label -->
+                                <Label fx:id="userNameLabel" layoutX="10.0" layoutY="140.0" prefHeight="20.0" prefWidth="80.0"
+                                       text="User Name" alignment="CENTER" style="-fx-font-size: 12px;" />
+
+                                <!-- Progress bar -->
+                                <ProgressBar fx:id="progressBar" layoutX="10.0" layoutY="180.0" prefWidth="80.0" visible="false" />
                             </children>
                         </AnchorPane>
+
+                        <!-- PieChart for displaying major distribution -->
+                        <PieChart fx:id="majorPieChart" prefHeight="180.0" prefWidth="90.0" maxHeight="180.0" maxWidth="90.0" />
                     </children>
                 </VBox>
             </left>

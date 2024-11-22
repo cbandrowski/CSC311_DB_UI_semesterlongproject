@@ -70,6 +70,19 @@
     -fx-padding: 0 20 0 5;        /* Adjust padding for spacing */
 
 }
+/* Style for the temporary status label */
+.status-label {
+    -fx-background-color: #2ECC71; /* Green background */
+    -fx-text-fill: white;          /* White text */
+    -fx-font-size: 14px;           /* Font size */
+    -fx-padding: 10px;             /* Padding around the text */
+    -fx-border-radius: 5px;        /* Rounded border */
+    -fx-background-radius: 5px;    /* Matching rounded corners */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 10, 0, 0, 0); /* Shadow effect */
+    -fx-alignment: center;         /* Center the text */
+    -fx-opacity: 0;                /* Start invisible for animations */
+}
+
 
 /* Text Fields */
 .text_field_pane {
