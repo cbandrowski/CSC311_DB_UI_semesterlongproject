@@ -6,10 +6,15 @@ public class UserSession {
     private static volatile UserSession instance;
     private String userName;
     private String privileges;
+    private String imgNamePath;
 
     private UserSession(String userName, String privileges) {
         this.userName = userName;
         this.privileges = privileges;
+
+        // Load the image path from Preferences (if available)
+        Preferences userPreferences = Preferences.userRoot();
+        this.imgNamePath = userPreferences.get("IMG_PATH", null);
     }
 
     public static UserSession getInstance(String userName, String privileges) {
@@ -44,10 +49,27 @@ public class UserSession {
         userPreferences.put("PRIVILEGES", privileges);
     }
 
+
+    public String getImg() {
+        return imgNamePath;
+    }
+    public void setImg(String imgName) {
+        this.imgNamePath = imgName;
+
+        // Persist the image path to Preferences
+        Preferences userPreferences = Preferences.userRoot();
+        userPreferences.put("IMG_PATH", imgName);
+    }
+
+
+
+
     public static void clearCredentials() {
         Preferences userPreferences = Preferences.userRoot();
         userPreferences.remove("USERNAME");
         userPreferences.remove("PRIVILEGES");
+        userPreferences.remove("IMG_PATH");
+
     }
 
     public static boolean validateCredentials(String username, String password) {
@@ -62,6 +84,7 @@ public class UserSession {
         return "UserSession{" +
                 "userName='" + userName + '\'' +
                 ", privileges='" + privileges + '\'' +
+                ", imgNamePath='" + imgNamePath + '\'' +
                 '}';
     }
 }

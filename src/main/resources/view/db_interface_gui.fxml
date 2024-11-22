@@ -21,12 +21,13 @@
                         </Menu>
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="Edit">
                             <items>
-                                <MenuItem fx:id="editItem" mnemonicParsing="false" styleClass="menu_items" text="Edit\t\tCtrl+E" />
-                                <MenuItem fx:id="deleteItem" mnemonicParsing="false" styleClass="menu_items" text="Delete\t\tCtrl+D" />
-                                <MenuItem fx:id="ClearItem" mnemonicParsing="false" styleClass="menu_items" text="Clear\t\tCtrl+R" />
-                                <MenuItem fx:id="CopyItem" mnemonicParsing="false" styleClass="menu_items" text="Copy\t\tCtrl+C" />
+                                <MenuItem fx:id="editItem" mnemonicParsing="false" styleClass="menu_items" text="Edit      Ctrl+E" />
+                                <MenuItem fx:id="deleteItem" mnemonicParsing="false" styleClass="menu_items" text="Delete    Ctrl+D" />
+                                <MenuItem fx:id="ClearItem" mnemonicParsing="false" styleClass="menu_items" text="Clear     Ctrl+R" />
+                                <MenuItem fx:id="CopyItem" mnemonicParsing="false" styleClass="menu_items" text="Copy      Ctrl+C" />
                             </items>
                         </Menu>
+
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="Theme">
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#lightTheme" styleClass="menu_items" text="LIGHT THEME" />
@@ -63,7 +64,8 @@
                                         <Image url="@../images/profile.png" />
                                     </image>
                                 </ImageView>
-                        <Label fx:id="userNameLabel" layoutX="22.0" layoutY="122.0" prefHeight="17.0" prefWidth="92.0" text=" "  />
+                                <ProgressBar fx:id="progressBar" visible="false" layoutX="28.0" />
+                                <Label fx:id="userNameLabel" layoutX="22.0" layoutY="122.0" prefHeight="17.0" prefWidth="92.0" text=" "  />
                             </children>
                         </AnchorPane>
                     </children>

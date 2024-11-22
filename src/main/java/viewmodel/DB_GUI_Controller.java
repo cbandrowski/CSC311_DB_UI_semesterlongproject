@@ -52,6 +52,7 @@ public class DB_GUI_Controller implements Initializable {
     public MenuItem CopyItem;
     public Label userNameLabel;
     StorageUploader store = new StorageUploader();
+    @FXML
     ProgressBar progressBar;
 
     public MenuItem ClearItem;
@@ -81,6 +82,8 @@ public class DB_GUI_Controller implements Initializable {
     private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_email;
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
+    UserSession currentSession = UserSession.getCurrentSession();
+
 
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -196,10 +199,14 @@ public class DB_GUI_Controller implements Initializable {
         combo_major.setItems(FXCollections.observableArrayList(Major.values()));
     }
     private void initializeSession() {
-        UserSession currentSession = UserSession.getCurrentSession();
         if (currentSession != null) {
             System.out.println("Logged in as: " + currentSession.getUserName());
             userNameLabel.setText(currentSession.getUserName());
+
+            // Check and load the image path
+            if (currentSession.getImg() != null) {
+                img_view.setImage(new Image(currentSession.getImg())); // Load image
+            }
         } else {
             System.out.println("No active session. Redirecting to login...");
             logout(null);
@@ -415,11 +422,25 @@ public class DB_GUI_Controller implements Initializable {
     protected void showImage() {
         File file = (new FileChooser()).showOpenDialog(img_view.getScene().getWindow());
         if (file != null) {
-            img_view.setImage(new Image(file.toURI().toString()));
-                        Task<Void> uploadTask = createUploadTask(file, progressBar);
-            progressBar.progressProperty().bind(uploadTask.progressProperty());
-            new Thread(uploadTask).start();
+            String fileUri = file.toURI().toString();
 
+            // Update UI
+            img_view.setImage(new Image(fileUri));
+
+            // Persist the image in the session
+            UserSession currentSession = UserSession.getCurrentSession();
+            if (currentSession != null) {
+                currentSession.setImg(fileUri); // Persist image path
+            } else {
+                System.out.println("No active session to save image!");
+            }
+
+            // (Optional) Simulate uploading the image
+            Task<Void> uploadTask = createUploadTask(file, progressBar);
+            progressBar.setVisible(true);
+            progressBar.progressProperty().bind(uploadTask.progressProperty());
+            uploadTask.setOnSucceeded(event -> progressBar.setVisible(false));
+            new Thread(uploadTask).start();
         }
     }
     @FXML
@@ -639,7 +660,7 @@ public class DB_GUI_Controller implements Initializable {
 
 
 
-    public static enum Major {Business, CSC, CPIS}
+    public static enum Major {BUSINESS, CSC, CPIS}
     private static class Results {
 
         String fname;

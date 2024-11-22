@@ -1100,7 +1100,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     </collation>
     <schema id="288" parent="1" name="csc311_bd_temp">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2024-11-21.18:12:09</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-11-22.21:32:00</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="289" parent="1" name="dbname">
@@ -1148,7 +1148,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
     <column id="302" parent="301" name="id">
-      <AutoIncrement>32</AutoIncrement>
+      <AutoIncrement>35</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int|0s</StoredType>
