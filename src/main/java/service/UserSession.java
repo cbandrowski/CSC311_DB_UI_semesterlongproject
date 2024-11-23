@@ -43,11 +43,13 @@ public class UserSession {
         return privileges;
     }
 
-    public static void saveCredentials(String username, String privileges) {
+    public static void saveCredentials(String username, String password, String privileges) {
         Preferences userPreferences = Preferences.userRoot();
         userPreferences.put("USERNAME", username);
+        userPreferences.put("PASSWORD", password); // Save the password
         userPreferences.put("PRIVILEGES", privileges);
     }
+
 
 
     public String getImg() {
@@ -72,12 +74,19 @@ public class UserSession {
 
     }
 
-    public static boolean validateCredentials(String username, String password) {
+    public static boolean isUsernameCorrect(String username) {
+        Preferences userPreferences = Preferences.userRoot();
+        String storedUsername = userPreferences.get("USERNAME", "");
+        return username.equals(storedUsername);
+    }
+
+    public static boolean isPasswordCorrect(String username, String password) {
         Preferences userPreferences = Preferences.userRoot();
         String storedUsername = userPreferences.get("USERNAME", "");
         String storedPassword = userPreferences.get("PASSWORD", "");
         return username.equals(storedUsername) && password.equals(storedPassword);
     }
+
 
     @Override
     public String toString() {

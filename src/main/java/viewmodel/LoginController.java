@@ -19,14 +19,21 @@ import service.UserSession;
 
 
 public class LoginController {
+    public PasswordField passwordField;
     @FXML
     private GridPane root_pane;
 
     @FXML
     private TextField usernameField;
 
+    
     @FXML
-    private PasswordField passwordField;
+    private TextField passwordVisibleField; // Visible password field
+    @FXML
+    private Button togglePasswordButton; // Button to toggle visibility
+
+    private boolean isPasswordVisible = false;
+
 
     public void initialize() {
         root_pane.setBackground(new Background(
@@ -44,6 +51,20 @@ public class LoginController {
         fadeOut2.setFromValue(0);
         fadeOut2.setToValue(1);
         fadeOut2.play();
+        // Synchronize PasswordField and TextField
+        passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!passwordVisibleField.isFocused()) {
+                passwordVisibleField.setText(newValue);
+            }
+        });
+
+        passwordVisibleField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!passwordField.isFocused()) {
+                passwordField.setText(newValue);
+            }
+        });
+
+
     }
 
     private static BackgroundImage createImage(String url) {
@@ -56,21 +77,30 @@ public class LoginController {
 
     @FXML
     public void login(ActionEvent actionEvent) {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Login Failed", "Both fields must be filled.");
             return;
         }
 
-        if (UserSession.validateCredentials(username, password)) {
-            UserSession.saveCredentials(username, "USER");
-            loadView("/view/db_interface_gui.fxml", actionEvent);
+        boolean usernameCorrect = UserSession.isUsernameCorrect(username);
+        boolean passwordCorrect = UserSession.isPasswordCorrect(username, password);
+
+        if (!usernameCorrect && !passwordCorrect) {
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid Username and Password.");
+        } else if (usernameCorrect && !passwordCorrect) {
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Incorrect Password.");
+        } else if (!usernameCorrect) {
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Username does not exist.");
         } else {
-            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid Username or Password.");
+            // Login successful
+            UserSession.saveCredentials(username, password,"USER"); // Save session details
+            loadView("/view/db_interface_gui.fxml", actionEvent);
         }
     }
+
 
     @FXML
     public void signUp(ActionEvent actionEvent) {
@@ -95,4 +125,23 @@ public class LoginController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    @FXML
+    public void togglePasswordVisibility(ActionEvent event) {
+        if (isPasswordVisible) {
+            // Switch to hidden PasswordField
+            passwordField.setText(passwordVisibleField.getText());
+            passwordField.setVisible(true);
+            passwordVisibleField.setVisible(false);
+            togglePasswordButton.setText("Show");
+        } else {
+            // Switch to visible TextField
+            passwordVisibleField.setText(passwordField.getText());
+            passwordVisibleField.setVisible(true);
+            passwordField.setVisible(false);
+            togglePasswordButton.setText("Hide");
+        }
+        isPasswordVisible = !isPasswordVisible;
+    }
+
 }
