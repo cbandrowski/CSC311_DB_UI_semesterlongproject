@@ -52,6 +52,11 @@ https://github.com/user-attachments/assets/f486a2f6-0cba-4b69-91ed-a6a1a6f6616e
 ### After Initial Login
 1. Navigate to **File > ChangePic** from the menu bar.
 2. Select and upload your profile picture from your desktop.
+   
+
+https://github.com/user-attachments/assets/21be195b-bc3d-4234-9b16-79a0a9d92e06
+
+
 
 ## Features
 
@@ -98,6 +103,10 @@ The application ensures data integrity with validation for:
 PDF generation is implemented using the **iText library** for creating formatted reports.
 
 ## Usage
+
+
+https://github.com/user-attachments/assets/39fd61a6-82f8-46db-9b72-9cae2eb89953
+
 
 ### Adding a New User
 1. Fill in the form fields for:
