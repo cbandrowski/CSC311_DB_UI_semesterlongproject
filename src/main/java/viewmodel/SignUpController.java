@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 
 
 import java.awt.*;
+import java.util.prefs.Preferences;
 
 public class SignUpController {
     public Button togglePasswordButton;
@@ -75,7 +76,13 @@ public class SignUpController {
                     .append("- Contain at least one digit\n")
                     .append("- Contain at least one special character (@#$%^&+=)\n");
         }
-
+        // Check if a user with the same username already exists
+        Preferences userPreferences = Preferences.userRoot();
+        String existingUsername = userPreferences.get("USERNAME", null);
+        if (existingUsername != null && existingUsername.equals(username)) {
+            // Clear existing credentials
+            UserSession.clearCredentials();
+        }
         // Show errors if validation fails
         if (errorMessages.length() > 0) {
             showAlert(Alert.AlertType.WARNING, "Sign-Up Failed", errorMessages.toString());

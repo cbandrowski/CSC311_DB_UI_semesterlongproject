@@ -180,7 +180,6 @@ public class DB_GUI_Controller implements Initializable {
         // Add a listener to update the label when the data changes
         data.addListener((ListChangeListener<Person>) change -> updateStudentCount());
     }
-
     private void updateStudentCount() {
         int totalStudents = data.size();
         studentCountLabel.setText(String.valueOf(totalStudents));
@@ -225,7 +224,6 @@ public class DB_GUI_Controller implements Initializable {
             updateDatabase(person);
         });
     }
-
     private void updatePieChart() {
         Map<Major, Integer> majorCounts = new HashMap<>();
         for (Person person : data) {
@@ -244,7 +242,6 @@ public class DB_GUI_Controller implements Initializable {
         // Update PieChart
         majorPieChart.setData(pieChartData);
     }
-
     private void updateDatabase(Person person) {
         try {
             cnUtil.editUser(person.getId(), person);
@@ -262,9 +259,12 @@ public class DB_GUI_Controller implements Initializable {
             System.out.println("Logged in as: " + currentSession.getUserName());
             userNameLabel.setText(currentSession.getUserName());
 
-            // Check and load the image path
-            if (currentSession.getImg() != null) {
-                img_view.setImage(new Image(currentSession.getImg())); // Load image
+            // Load the image path specific to the current user
+            String imgPath = currentSession.getImg();
+            if (imgPath != null) {
+                img_view.setImage(new Image(imgPath)); // Load image
+            } else {
+                System.out.println("No profile picture set for this user.");
             }
         } else {
             System.out.println("No active session. Redirecting to login...");
@@ -316,9 +316,6 @@ public class DB_GUI_Controller implements Initializable {
             CopyItem.setDisable(!isSelected);
         });
     }
-
-
-
     private boolean isAnyFieldFilled() {
         // Checks if any field has text to enable the clear button
         return !first_name.getText().trim().isEmpty() ||
@@ -477,6 +474,7 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
+
     @FXML
     protected void closeApplication() {
         System.exit(0);
@@ -515,19 +513,33 @@ public class DB_GUI_Controller implements Initializable {
             // Persist the image in the session
             UserSession currentSession = UserSession.getCurrentSession();
             if (currentSession != null) {
-                currentSession.setImg(fileUri); // Persist image path
+                currentSession.setImg(fileUri);
             } else {
                 System.out.println("No active session to save image!");
             }
 
-            // (Optional) Simulate uploading the image
+            // Simulate uploading the image
             Task<Void> uploadTask = createUploadTask(file, progressBar);
             progressBar.setVisible(true);
             progressBar.progressProperty().bind(uploadTask.progressProperty());
-            uploadTask.setOnSucceeded(event -> progressBar.setVisible(false));
+
+            uploadTask.setOnSucceeded(event -> {
+                progressBar.setVisible(false);
+                progressBar.progressProperty().unbind();
+                progressBar.setProgress(0); // Reset progress
+            });
+
+            uploadTask.setOnFailed(event -> {
+                progressBar.setVisible(false);
+                progressBar.progressProperty().unbind();
+                progressBar.setProgress(0);
+                System.out.println("Upload failed: " + uploadTask.getException().getMessage());
+            });
+
             new Thread(uploadTask).start();
         }
     }
+
     @FXML
     protected void addRecord() {
         showSomeone();
@@ -688,7 +700,6 @@ public class DB_GUI_Controller implements Initializable {
             }
         }
     }
-
     @FXML
     public void pdfMajorNum(ActionEvent actionEvent) {
         // Count students by major
@@ -742,7 +753,6 @@ public class DB_GUI_Controller implements Initializable {
             document.close();
         }
     }
-
     @FXML
     protected void copySelectedRecord() {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
@@ -756,12 +766,8 @@ public class DB_GUI_Controller implements Initializable {
             showAlert("No Selection", "Please select a record to copy.");
         }
     }
-
-
-
     public static enum Major {BUSINESS, CSC, CPIS}
     private static class Results {
-
         String fname;
         String lname;
         Major major;
@@ -772,5 +778,4 @@ public class DB_GUI_Controller implements Initializable {
             this.major = venue;
         }
     }
-
 }

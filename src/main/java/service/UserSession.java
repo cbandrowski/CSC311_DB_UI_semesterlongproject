@@ -51,16 +51,22 @@ public class UserSession {
     }
 
 
-
     public String getImg() {
-        return imgNamePath;
+        if (this.userName != null) {
+            Preferences userPreferences = Preferences.userRoot();
+            return userPreferences.get("IMG_PATH_" + this.userName, null);
+        }
+        return null;
     }
+
     public void setImg(String imgName) {
         this.imgNamePath = imgName;
 
-        // Persist the image path to Preferences
+        // Persist the image path in Preferences for the current user
         Preferences userPreferences = Preferences.userRoot();
-        userPreferences.put("IMG_PATH", imgName);
+        if (this.userName != null) {
+            userPreferences.put("IMG_PATH_" + this.userName, imgName);
+        }
     }
 
 
@@ -68,11 +74,20 @@ public class UserSession {
 
     public static void clearCredentials() {
         Preferences userPreferences = Preferences.userRoot();
-        userPreferences.remove("USERNAME");
-        userPreferences.remove("PRIVILEGES");
-        userPreferences.remove("IMG_PATH");
+        if (instance != null && instance.userName != null) {
+            userPreferences.remove("USERNAME");
+            userPreferences.remove("PASSWORD");
+            userPreferences.remove("PRIVILEGES");
+            userPreferences.remove("IMG_PATH_" + instance.userName); // Clear image for this user
 
+            // Reset the instance variables
+            instance.userName = null;
+            instance.privileges = null;
+            instance.imgNamePath = null;
+            instance = null;
+        }
     }
+
 
     public static boolean isUsernameCorrect(String username) {
         Preferences userPreferences = Preferences.userRoot();
