@@ -72,7 +72,8 @@
                                 <ProgressBar fx:id="progressBar" layoutX="10.0" layoutY="180.0" prefWidth="80.0" visible="false" />
                             </children>
                         </AnchorPane>
-
+                        <Label text="Total Students:" style="-fx-font-size: 16px;" />
+                        <Label fx:id="studentCountLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
                         <!-- PieChart for displaying major distribution -->
                         <PieChart fx:id="majorPieChart" prefHeight="180.0" prefWidth="90.0" maxHeight="180.0" maxWidth="90.0" />
                     </children>

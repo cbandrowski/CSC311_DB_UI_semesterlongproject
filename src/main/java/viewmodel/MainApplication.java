@@ -31,7 +31,7 @@ public class MainApplication extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setResizable(false);
         primaryStage.getIcons().add(icon);
-        primaryStage.setTitle("FSC CSC311 _ Database Project");
+        primaryStage.setTitle("Student Statistics");
         showScene1();
     }
 

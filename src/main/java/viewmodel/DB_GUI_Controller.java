@@ -58,6 +58,7 @@ public class DB_GUI_Controller implements Initializable {
     public MenuItem CopyItem;
     public Label userNameLabel;
     public PieChart majorPieChart;
+    public Label studentCountLabel;
     StorageUploader store = new StorageUploader();
     @FXML
     ProgressBar progressBar;
@@ -96,6 +97,7 @@ public class DB_GUI_Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         applyDarkTheme();
         initializePieChart(); // Initialize the PieChart
+        initializeStudentCountLabel(); // Initialize the student count label
         initializeButtons();
         initializeTableView();
         initializeComboBox();
@@ -171,7 +173,18 @@ public class DB_GUI_Controller implements Initializable {
         // Add listener to data changes to refresh the PieChart
         data.addListener((ListChangeListener<Person>) change -> updatePieChart());
     }
+    private void initializeStudentCountLabel() {
+        // Set initial count
+        updateStudentCount();
 
+        // Add a listener to update the label when the data changes
+        data.addListener((ListChangeListener<Person>) change -> updateStudentCount());
+    }
+
+    private void updateStudentCount() {
+        int totalStudents = data.size();
+        studentCountLabel.setText(String.valueOf(totalStudents));
+    }
     private void setTableColumnsEditable() {
         // Make text columns editable
         tv_fn.setCellFactory(TextFieldTableCell.forTableColumn());
