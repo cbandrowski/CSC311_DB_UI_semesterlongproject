@@ -52,11 +52,8 @@ https://github.com/user-attachments/assets/f486a2f6-0cba-4b69-91ed-a6a1a6f6616e
 ### After Initial Login
 1. Navigate to **File > ChangePic** from the menu bar.
 2. Select and upload your profile picture from your desktop.
-   
 
-https://github.com/user-attachments/assets/21be195b-bc3d-4234-9b16-79a0a9d92e06
-
-
+https://github.com/user-attachments/assets/db46e773-8e58-41b6-b5bb-b9b28e931224
 
 ## Features
 
@@ -104,10 +101,6 @@ PDF generation is implemented using the **iText library** for creating formatted
 
 ## Usage
 
-
-https://github.com/user-attachments/assets/39fd61a6-82f8-46db-9b72-9cae2eb89953
-
-
 ### Adding a New User
 1. Fill in the form fields for:
    - First Name
@@ -117,11 +110,21 @@ https://github.com/user-attachments/assets/39fd61a6-82f8-46db-9b72-9cae2eb89953
    - Email
    - Profile Image URL
 2. Click **Add** to save the record.
+   
+
+https://github.com/user-attachments/assets/e9f62c3e-c6e5-45e3-8633-72b7a3a62eb5
+
+
 
 ### Editing an Existing User
 1. Select a record in the TableView.
 2. Modify the fields as needed.
 3. Click **Edit** to update the record.
+   
+
+https://github.com/user-attachments/assets/f96ca3a2-28b7-4385-aba3-ef4c743b8a77
+
+
 
 ### Deleting a User
 1. Select a record in the TableView.
@@ -131,13 +134,32 @@ https://github.com/user-attachments/assets/39fd61a6-82f8-46db-9b72-9cae2eb89953
 1. Click **Import CSV**.
 2. Choose a valid CSV file and load the data.
 
+https://github.com/user-attachments/assets/efce9638-4b17-41e5-831e-4af4435c92b8
+
+
 ### Exporting Data
 1. Click **Export CSV**.
 2. Save the file to your desired location.
+   
+
+https://github.com/user-attachments/assets/e49c9288-0e8e-41ef-9669-7e290f22ec98
+
+
+
+CSV FIle Exported 
+![Screenshot 2024-11-24 at 12 07 32 PM](https://github.com/user-attachments/assets/27e4398e-3f65-4ae3-a6b9-db5a79ff75ae)
+
 
 ### Generating Reports
 1. Click **Generate PDF**.
 2. Save the report to your desired location.
+   
+
+https://github.com/user-attachments/assets/e0c16231-0078-4834-82e3-0af74d630179
+PDF Generated 
+![Screenshot 2024-11-24 at 1 27 02 PM](https://github.com/user-attachments/assets/1d48d27b-8be5-4b51-9402-5cce9e0d013d)
+
+
 
 ---
 
