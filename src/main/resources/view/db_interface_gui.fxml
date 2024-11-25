@@ -75,7 +75,7 @@
                         <Label text="Total Students:" style="-fx-font-size: 16px;" />
                         <Label fx:id="studentCountLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
                         <!-- PieChart for displaying major distribution -->
-                        <PieChart fx:id="majorPieChart" prefHeight="180.0" prefWidth="90.0" maxHeight="180.0" maxWidth="90.0" />
+                        <PieChart fx:id="deparmtmentPieChart" prefHeight="180.0" prefWidth="90.0" maxHeight="180.0" maxWidth="90.0" />
                     </children>
                 </VBox>
             </left>
@@ -95,12 +95,12 @@
                                 <Insets left="10.0" right="10.0" top="5.0" />
                             </VBox.margin>
                         </TextField>
-                        <TextField fx:id="department" promptText="Department" styleClass="text_field">
+                        <TextField fx:id="position" promptText="Position" styleClass="text_field">
                             <VBox.margin>
                                 <Insets left="10.0" right="10.0" top="5.0" />
                             </VBox.margin>
                         </TextField>
-                        <ComboBox fx:id="combo_major" promptText="Select Major" styleClass="text_field">
+                        <ComboBox fx:id="combo_department" promptText="Select Department" styleClass="text_field">
                             <VBox.margin>
                                 <Insets left="10.0" right="10.0" top="5.0" />
                             </VBox.margin>
@@ -155,8 +155,8 @@
                         <TableColumn fx:id="tv_id" prefWidth="42.0" styleClass="table_columns" text="ID" />
                         <TableColumn fx:id="tv_fn" prefWidth="117.0" styleClass="table_columns" text="First Name" />
                         <TableColumn fx:id="tv_ln" prefWidth="93.0" styleClass="table_columns" text="Last Name" />
-                        <TableColumn fx:id="tv_department" prefWidth="122.0" styleClass="table_columns" text="Department" />
-                        <TableColumn fx:id="tv_major" prefWidth="84.0" styleClass="table_columns" text="Major" />
+                        <TableColumn fx:id="tv_position" prefWidth="122.0" styleClass="table_columns" text="Position" />
+                        <TableColumn fx:id="tv_department" prefWidth="84.0" styleClass="table_columns" text="Department" />
                         <TableColumn fx:id="tv_email" prefWidth="111.0" styleClass="table_columns" text="Email" />
                     </columns>
                 </TableView>

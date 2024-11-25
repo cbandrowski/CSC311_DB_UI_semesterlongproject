@@ -31,7 +31,7 @@ public class MainApplication extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setResizable(false);
         primaryStage.getIcons().add(icon);
-        primaryStage.setTitle("Student Statistics");
+        primaryStage.setTitle("Employee Statistics");
         showScene1();
     }
 

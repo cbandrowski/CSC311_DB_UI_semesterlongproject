@@ -82,6 +82,21 @@
     -fx-padding: 0 20 0 5;        /* Adjust padding for spacing */
 
 }
+.dialog-pane {
+    -fx-font-family: "Verdana";
+    -fx-font-size: 14px;
+    -fx-background-color: Black;
+}
+
+.dialog-pane .content.label {
+    -fx-text-fill: White; /* Red text for content */
+    -fx-font-weight: bold;  /* Bold font for content */
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: Black; /* Blue background for header */
+    -fx-text-fill: #ffffff; /* White header text */
+}
 
 /* Text Fields */
 .text_field_pane {

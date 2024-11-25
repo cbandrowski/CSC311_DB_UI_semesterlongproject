@@ -4,7 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Person;
 import service.MyLogger;
-import viewmodel.DB_GUI_Controller.Major;
+import viewmodel.DB_GUI_Controller;
+import viewmodel.DB_GUI_Controller.Department;
 
 
 import java.sql.*;
@@ -36,16 +37,15 @@ public class DbConnectivityClass {
                     int id = resultSet.getInt("id");
                     String first_name = resultSet.getString("first_name");
                     String last_name = resultSet.getString("last_name");
-                    String department = resultSet.getString("department");
-                    String majorStr = resultSet.getString("major");
-                    Major major = null;
+                    String department = resultSet.getString("position");
+                    String majorStr = resultSet.getString("department");
+                    DB_GUI_Controller.Department major = null;
                     try {
                         if (majorStr != null) {
-                            major = Major.valueOf(majorStr.toUpperCase()); // Convert string to enum
                         }
                     } catch (IllegalArgumentException e) {
                         // Handle case where the database value doesn't match any enum constant
-                        lg.makeLog("Invalid major found in database: " + majorStr);
+                        lg.makeLog("Invalid department found in database: " + majorStr);
                     }
                     String email = resultSet.getString("email");
                     String imageURL = resultSet.getString("imageURL");
@@ -78,8 +78,8 @@ public class DbConnectivityClass {
                 statement = conn.createStatement();
                 String sql = "CREATE TABLE IF NOT EXISTS users (" + "id INT( 10 ) NOT NULL PRIMARY KEY AUTO_INCREMENT,"
                         + "first_name VARCHAR(200) NOT NULL," + "last_name VARCHAR(200) NOT NULL,"
+                        + "position VARCHAR(200),"
                         + "department VARCHAR(200),"
-                        + "major VARCHAR(200),"
                         + "email VARCHAR(200) NOT NULL UNIQUE,"
                         + "imageURL VARCHAR(200))";
                 statement.executeUpdate(sql);
@@ -160,39 +160,38 @@ public class DbConnectivityClass {
             }
         }
 
-        public void insertUser(Person person) {
-            connectToDatabase();
-            try {
-                Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-                String sql = "INSERT INTO users (first_name, last_name, department, major, email, imageURL) VALUES (?, ?, ?, ?, ?, ?)";
-                PreparedStatement preparedStatement = conn.prepareStatement(sql);
-                preparedStatement.setString(1, person.getFirstName());
-                preparedStatement.setString(2, person.getLastName());
-                preparedStatement.setString(3, person.getDepartment());
-                preparedStatement.setString(4, person.getMajor() != null ? person.getMajor().name() : null);
-                preparedStatement.setString(5, person.getEmail());
-                preparedStatement.setString(6, person.getImageURL());
-                int row = preparedStatement.executeUpdate();
-                if (row > 0) {
-                    lg.makeLog("A new user was inserted successfully.");
-                }
-                preparedStatement.close();
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+    public void insertUser(Person person) throws SQLException {
+        connectToDatabase();
+        Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+        String sql = "INSERT INTO users (first_name, last_name, position, department, email, imageURL) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.setString(1, person.getFirstName());
+            preparedStatement.setString(2, person.getLastName());
+            preparedStatement.setString(3, person.getPosition());
+            String department = person.getDepartment() != null ? person.getDepartment().name().toUpperCase() : null;
+            preparedStatement.setString(4, department);
+            preparedStatement.setString(5, person.getEmail());
+            preparedStatement.setString(6, person.getImageURL());
+            int row = preparedStatement.executeUpdate();
+            if (row > 0) {
+                lg.makeLog("A new user was inserted successfully.");
             }
+        } finally {
+            conn.close();
         }
+    }
 
-        public void editUser(int id, Person p) {
+
+    public void editUser(int id, Person p) {
             connectToDatabase();
             try {
                 Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-                String sql = "UPDATE users SET first_name=?, last_name=?, department=?, major=?, email=?, imageURL=? WHERE id=?";
+                String sql = "UPDATE users SET first_name=?, last_name=?, position=?, department=?, email=?, imageURL=? WHERE id=?";
                 PreparedStatement preparedStatement = conn.prepareStatement(sql);
                 preparedStatement.setString(1, p.getFirstName());
                 preparedStatement.setString(2, p.getLastName());
-                preparedStatement.setString(3, p.getDepartment());
-                preparedStatement.setString(4, p.getMajor() != null ? p.getMajor().name() : null);
+                preparedStatement.setString(3, p.getPosition());
+                preparedStatement.setString(4, p.getDepartment() != null ? p.getDepartment().name() : null);
                 preparedStatement.setString(5, p.getEmail());
                 preparedStatement.setString(6, p.getImageURL());
                 preparedStatement.setInt(7, id);

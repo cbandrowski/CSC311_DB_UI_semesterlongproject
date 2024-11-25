@@ -30,7 +30,7 @@
         <!-- Title Label -->
         <HBox alignment="CENTER" GridPane.columnSpan="3" GridPane.rowIndex="1">
             <children>
-                <Label text="Student Login" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #111386;" />
+                <Label text="Manager Login" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #111386;" />
             </children>
         </HBox>
 

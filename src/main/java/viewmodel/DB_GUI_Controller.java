@@ -44,6 +44,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -57,7 +58,7 @@ import java.util.regex.Matcher;
 public class DB_GUI_Controller implements Initializable {
     public MenuItem CopyItem;
     public Label userNameLabel;
-    public PieChart majorPieChart;
+    public PieChart deparmtmentPieChart;
     public Label studentCountLabel;
     StorageUploader store = new StorageUploader();
     @FXML
@@ -65,7 +66,7 @@ public class DB_GUI_Controller implements Initializable {
 
     public MenuItem ClearItem;
     @FXML
-    TextField first_name, last_name, department, major, email, imageURL;
+    TextField first_name, last_name, position, department, email, imageURL;
     @FXML
     ImageView img_view;
     @FXML
@@ -76,9 +77,9 @@ public class DB_GUI_Controller implements Initializable {
     private Label statusLabel;
 
     @FXML
-    private ComboBox<Major> combo_major;
+    private ComboBox<Department> combo_department;
     @FXML
-    private TableColumn<Person, Major> tv_major;
+    private TableColumn<Person, Department> tv_department;
 
     @FXML
     private TableColumn<Person, Integer> tv_id;
@@ -87,7 +88,7 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private MenuItem editItem, deleteItem;
     @FXML
-    private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_email;
+    private TableColumn<Person, String> tv_fn, tv_ln, tv_position, tv_email;
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
     UserSession currentSession = UserSession.getCurrentSession();
@@ -141,11 +142,13 @@ public class DB_GUI_Controller implements Initializable {
             tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
             tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
-            tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));
+            tv_position.setCellValueFactory(new PropertyValueFactory<>("Position"));
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
-            tv_major.setCellValueFactory(cellData ->
-                    new SimpleObjectProperty<>(cellData.getValue().getMajor())
+            tv_department.setCellValueFactory(cellData ->
+                    new SimpleObjectProperty<>(cellData.getValue().getDepartment())
             );
+            tv_department.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(Department.values())));
+
 
             tv.setItems(data);
             tv.setEditable(true);
@@ -200,10 +203,10 @@ public class DB_GUI_Controller implements Initializable {
             updateDatabase(person);
         });
 
-        tv_department.setCellFactory(TextFieldTableCell.forTableColumn());
-        tv_department.setOnEditCommit(event -> {
+        tv_position.setCellFactory(TextFieldTableCell.forTableColumn());
+        tv_position.setOnEditCommit(event -> {
             Person person = event.getRowValue();
-            person.setDepartment(event.getNewValue());
+            person.setDepartment(Department.valueOf(event.getNewValue()));
             updateDatabase(person);
         });
 
@@ -215,32 +218,32 @@ public class DB_GUI_Controller implements Initializable {
         });
 
         // Make Major column editable with ComboBox
-        tv_major.setCellFactory(ComboBoxTableCell.forTableColumn(
-                FXCollections.observableArrayList(Major.values())
+        tv_department.setCellFactory(ComboBoxTableCell.forTableColumn(
+                FXCollections.observableArrayList(Department.values())
         ));
-        tv_major.setOnEditCommit(event -> {
+        tv_department.setOnEditCommit(event -> {
             Person person = event.getRowValue();
-            person.setMajor(event.getNewValue());
+            person.setDepartment(event.getNewValue());
             updateDatabase(person);
         });
     }
     private void updatePieChart() {
-        Map<Major, Integer> majorCounts = new HashMap<>();
+        Map<Department, Integer> majorCounts = new HashMap<>();
         for (Person person : data) {
-            Major major = person.getMajor();
+            Department major = person.getDepartment();
             majorCounts.put(major, majorCounts.getOrDefault(major, 0) + 1);
         }
 
         // Create PieChart data
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
-        for (Map.Entry<Major, Integer> entry : majorCounts.entrySet()) {
+        for (Map.Entry<Department, Integer> entry : majorCounts.entrySet()) {
             String majorName = entry.getKey() != null ? entry.getKey().name() : "Unknown";
             int count = entry.getValue();
             pieChartData.add(new PieChart.Data(majorName, count));
         }
 
         // Update PieChart
-        majorPieChart.setData(pieChartData);
+        deparmtmentPieChart.setData(pieChartData);
     }
     private void updateDatabase(Person person) {
         try {
@@ -252,7 +255,7 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
     private void initializeComboBox() {
-        combo_major.setItems(FXCollections.observableArrayList(Major.values()));
+        combo_department.setItems(FXCollections.observableArrayList(Department.values()));
     }
     private void initializeSession() {
         if (currentSession != null) {
@@ -290,11 +293,11 @@ public class DB_GUI_Controller implements Initializable {
 
         first_name.textProperty().addListener(formListener);
         last_name.textProperty().addListener(formListener);
-        department.textProperty().addListener(formListener);
+        position.textProperty().addListener(formListener);
         email.textProperty().addListener(formListener);
         imageURL.textProperty().addListener(formListener);
         // Add a listener for the ComboBox selection
-        combo_major.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        combo_department.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             addBtn.setDisable(!isFormValid());
             clearBtn.setDisable(!isAnyFieldFilled());
         });
@@ -320,8 +323,8 @@ public class DB_GUI_Controller implements Initializable {
         // Checks if any field has text to enable the clear button
         return !first_name.getText().trim().isEmpty() ||
                 !last_name.getText().trim().isEmpty() ||
-                !department.getText().trim().isEmpty() ||
-                combo_major.getSelectionModel().getSelectedItem() != null || // Check ComboBox selection
+                !position.getText().trim().isEmpty() ||
+                combo_department.getSelectionModel().getSelectedItem() != null || // Check ComboBox selection
                 !email.getText().trim().isEmpty() ||
                 !imageURL.getText().trim().isEmpty();
     }
@@ -329,8 +332,8 @@ public class DB_GUI_Controller implements Initializable {
         // Basic validation: all fields should be non-empty; email should contain "@" as a simplistic check
         return !first_name.getText().trim().isEmpty() &&
                 !last_name.getText().trim().isEmpty() &&
-                !department.getText().trim().isEmpty() &&
-                combo_major.getSelectionModel().getSelectedItem() != null && // Check ComboBox selection
+                !position.getText().trim().isEmpty() &&
+                combo_department.getSelectionModel().getSelectedItem() != null && // Check ComboBox selection
                 email.getText().contains("@") &&
                 !imageURL.getText().trim().isEmpty();
     }
@@ -347,42 +350,58 @@ public class DB_GUI_Controller implements Initializable {
     protected void addNewRecord() {
         String validationMessage = validateFields();
         if (validationMessage.isEmpty()) {
-            Major selectedMajor = combo_major.getSelectionModel().getSelectedItem();
+            Department selectedDepartment = combo_department.getSelectionModel().getSelectedItem();
             Person p = new Person(
                     first_name.getText(),
                     last_name.getText(),
-                    department.getText(),
-                    selectedMajor,
+                    position.getText(),
+                    selectedDepartment,
                     email.getText(),
                     imageURL.getText()
             );
 
-            cnUtil.insertUser(p);
-            p.setId(cnUtil.retrieveId(p));
-            data.add(p);
-            clearForm();
+            try {
+                // Attempt to insert the record
+                cnUtil.insertUser(p);
+                p.setId(cnUtil.retrieveId(p));
+                data.add(p); // Add to the list only if the database insertion succeeds
+                clearForm();
 
-            // Update PieChart
-            updatePieChart();
-            // Show success message temporarily
-            showTemporaryStatus("Record added successfully.");
+                // Update PieChart
+                updatePieChart();
+
+                // Show success message temporarily
+                showTemporaryStatus("Record added successfully.");
+            } catch (SQLException e) {
+                // Check if the exception is due to a duplicate entry
+                if (e.getSQLState().startsWith("23")) { // SQLState 23xxx is for integrity constraint violations
+                    showAlert("Duplicate Record", "A record with the same email already exists.");
+                    showTemporaryStatus("Error: Duplicate record detected.");
+                } else {
+                    // Handle other SQL exceptions
+                    showAlert("Database Error", "An error occurred while adding the record: " + e.getMessage());
+                    showTemporaryStatus("Error: Database issue encountered.");
+                }
+            }
         } else {
+            // Handle validation errors
             showAlert("Invalid Input", validationMessage);
             showTemporaryStatus("Error: " + validationMessage); // Show validation error message temporarily
         }
     }
+
     @FXML
     protected void editRecord() {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
         String validationMessage = validateFields();
         if (selectedPerson != null && validationMessage.isEmpty()) {
-            Major selectedMajor = combo_major.getSelectionModel().getSelectedItem();
+            Department selectedDepartment = combo_department.getSelectionModel().getSelectedItem();
             Person updatedPerson = new Person(
                     selectedPerson.getId(),
                     first_name.getText(),
                     last_name.getText(),
-                    department.getText(),
-                    selectedMajor,
+                    position.getText(),
+                    selectedDepartment,
                     email.getText(),
                     imageURL.getText()
             );
@@ -406,7 +425,7 @@ public class DB_GUI_Controller implements Initializable {
 
         String firstNameError = validateName(first_name.getText(), "First Name");
         String lastNameError = validateName(last_name.getText(), "Last Name");
-        String departmentError = validateDepartment(department.getText());
+        String departmentError = validateDepartment(position.getText());
         String emailError = validateEmail(email.getText());
         String imageUrlError = validateImageURL(imageURL.getText());
 
@@ -456,8 +475,8 @@ public class DB_GUI_Controller implements Initializable {
     protected void clearForm() {
         first_name.setText("");
         last_name.setText("");
-        department.setText("");
-        combo_major.getSelectionModel().clearSelection(); // Clear the ComboBox selection
+        position.setText("");
+        combo_department.getSelectionModel().clearSelection(); // Clear the ComboBox selection
         email.setText("");
         imageURL.setText("");
     }
@@ -550,13 +569,13 @@ public class DB_GUI_Controller implements Initializable {
         if (p != null) {
             first_name.setText(p.getFirstName());
             last_name.setText(p.getLastName());
-            department.setText(p.getDepartment());
+            tv_position.setText(p.getPosition());
 
             // Set the selected item in the ComboBox instead of setting text
-            if (p.getMajor() != null) {
-                combo_major.getSelectionModel().select(p.getMajor());
+            if (p.getDepartment() != null) {
+                combo_department.getSelectionModel().select(p.getDepartment());
             } else {
-                combo_major.getSelectionModel().clearSelection();
+                combo_department.getSelectionModel().clearSelection();
             }
             email.setText(p.getEmail());
             imageURL.setText(p.getImageURL());
@@ -595,8 +614,8 @@ public class DB_GUI_Controller implements Initializable {
         TextField textField1 = new TextField("Name");
         TextField textField2 = new TextField("Last Name");
         TextField textField3 = new TextField("Email ");
-        ObservableList<Major> options = FXCollections.observableArrayList(Major.values());
-        ComboBox<Major> comboBox = new ComboBox<>(options);
+        ObservableList<Department> options = FXCollections.observableArrayList(Department.values());
+        ComboBox<Department> comboBox = new ComboBox<>(options);
         comboBox.getSelectionModel().selectFirst();
         dialogPane.setContent(new VBox(8, textField1, textField2, textField3, comboBox));
         Platform.runLater(textField1::requestFocus);
@@ -610,7 +629,7 @@ public class DB_GUI_Controller implements Initializable {
 
         Optional<Results> optionalResult = dialog.showAndWait();
         optionalResult.ifPresent((Results results) -> {
-            MyLogger.makeLog(results.fname + " " + results.lname + " " + results.major);
+            MyLogger.makeLog(results.fname + " " + results.lname + " " + results.department);
         });
     }
     private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
@@ -641,39 +660,58 @@ public class DB_GUI_Controller implements Initializable {
             }
         };
     }
-    @FXML
     public void importCSV(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
         File file = fileChooser.showOpenDialog(tv.getScene().getWindow());
 
         if (file != null) {
+            int duplicateCount = 0; // Counter for duplicates
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] fields = line.split(","); // Assumes CSV fields are separated by commas
                     if (fields.length >= 6) { // Ensure at least 6 fields (adjust based on CSV structure)
+                        // Convert all fields to uppercase
                         String firstName = fields[0].trim();
                         String lastName = fields[1].trim();
                         String department = fields[2].trim();
-                        Major major = Major.valueOf(fields[3].trim()); // Enum lookup
-                        String email = fields[4].trim();
-                        String imageURL = fields[5].trim();
 
-                        // Add to database and table view
+                        // Handle Major enum safely
+                        Department major = null;
+                        try {
+                            major = Department.valueOf(fields[3].trim().toUpperCase()); // Convert to uppercase
+                        } catch (IllegalArgumentException e) {
+                            // Assign default value or skip invalid major (optional)
+                            major = null; // Or Major.UNKNOWN if such a default exists
+                        }
+
+                        String email = fields[4].trim();
+                        String imageURL = fields[5].trim(); // Keeping image URL as is, as URLs are case-sensitive
+
+                        // Create a Person object
                         Person person = new Person(firstName, lastName, department, major, email, imageURL);
-                        cnUtil.insertUser(person);
-                        person.setId(cnUtil.retrieveId(person));
-                        data.add(person);
+
+                        // Attempt to insert into database
+                        try {
+                            cnUtil.insertUser(person); // Only proceed if insert succeeds
+                            person.setId(cnUtil.retrieveId(person));
+                            data.add(person); // Add to list view only after successful database insertion
+                        } catch (SQLException e) {
+                            duplicateCount++; // Increment duplicate counter if insert fails
+                        }
                     }
                 }
-                showTemporaryStatus("CSV imported successfully.");
+                // Show a success message and number of duplicates
+                showAlert("Import Completed", "CSV imported successfully.\n" +
+                        "Duplicates skipped: " + duplicateCount);
             } catch (Exception e) {
                 showAlert("Error", "Failed to import CSV: " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
+
     @FXML
     public void exportCSV(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
@@ -687,7 +725,7 @@ public class DB_GUI_Controller implements Initializable {
                             person.getFirstName(),
                             person.getLastName(),
                             person.getDepartment(),
-                            person.getMajor().name(), // Convert Enum to String
+                            person.getDepartment().name(), // Convert Enum to String
                             person.getEmail(),
                             person.getImageURL());
                     writer.write(line);
@@ -703,9 +741,9 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     public void pdfMajorNum(ActionEvent actionEvent) {
         // Count students by major
-        Map<Major, Integer> majorCounts = new HashMap<>();
+        Map<Department, Integer> majorCounts = new HashMap<>();
         for (Person person : data) {
-            Major major = person.getMajor();
+            Department major = person.getDepartment();
             majorCounts.put(major, majorCounts.getOrDefault(major, 0) + 1);
         }
 
@@ -725,14 +763,14 @@ public class DB_GUI_Controller implements Initializable {
 
             // Add title
             Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
-            document.add(new Paragraph("Number of Students by Major", titleFont));
+            document.add(new Paragraph("Number of Students by Department", titleFont));
             document.add(new Paragraph("\n"));
 
             // Add table
             PdfPTable table = new PdfPTable(2); // Two columns: Major and Count
-            table.addCell("Major");
+            table.addCell("Department");
             table.addCell("Count");
-            for (Map.Entry<Major, Integer> entry : majorCounts.entrySet()) {
+            for (Map.Entry<Department, Integer> entry : majorCounts.entrySet()) {
                 table.addCell(entry.getKey() != null ? entry.getKey().name() : "Unknown");
                 table.addCell(String.valueOf(entry.getValue()));
             }
@@ -766,16 +804,24 @@ public class DB_GUI_Controller implements Initializable {
             showAlert("No Selection", "Please select a record to copy.");
         }
     }
-    public static enum Major {BUSINESS, CSC, CPIS}
+    public static enum Department {BOH, FOH, MG}
     private static class Results {
         String fname;
         String lname;
-        Major major;
+        Department department;
 
-        public Results(String name, String date, Major venue) {
+        public Results(String name, String date, Department venue) {
             this.fname = name;
             this.lname = date;
-            this.major = venue;
+            this.department = venue;
+        }
+    }
+    // Convert String to Major Enum
+    public static Department fromString(String majorString) {
+        try {
+            return Department.valueOf(majorString.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null; // Handle invalid or null values
         }
     }
 }

@@ -6,8 +6,8 @@ public class Person {
     private Integer id;
     private String firstName;
     private String lastName;
-    private String department;
-    private DB_GUI_Controller.Major major;
+    private String position;
+    private DB_GUI_Controller.Department department;
 
     private String email;
     private String imageURL;
@@ -15,21 +15,21 @@ public class Person {
     public Person() {
     }
 
-    public Person(String firstName, String lastName, String department, DB_GUI_Controller.Major major, String email, String imageURL) {
+    public Person(String firstName, String lastName, String position, DB_GUI_Controller.Department major, String email, String imageURL) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.department = department;
-        this.major = major;
+        this.position = position;
+        this.department = major;
         this.email = email;
         this.imageURL = imageURL;
     }
 
-    public Person(Integer id, String firstName, String lastName, String department, DB_GUI_Controller.Major major, String email, String imageURL) {
+    public Person(Integer id, String firstName, String lastName, String position, DB_GUI_Controller.Department major, String email, String imageURL) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.department = department;
-        this.major = major;
+        this.position = position;
+        this.department = major;
         this.email = email;
         this.imageURL = imageURL;
     }
@@ -68,29 +68,29 @@ public class Person {
         this.lastName = lastName;
     }
 
-    public DB_GUI_Controller.Major getMajor() {
-        return major;
-    }
-
-    public void setMajor(DB_GUI_Controller.Major major) {
-        this.major = major;
-    }
-
-    // Optional: method to get Major as a String
-    public String getMajorAsString() {
-        return major != null ? major.name() : "";
-    }
-
-    public void setMajorFromString(String majorString) {
-        this.major = DB_GUI_Controller.Major.valueOf(majorString);
-    }
-
-    public String getDepartment() {
+    public DB_GUI_Controller.Department getDepartment() {
         return department;
     }
 
-    public void setDepartment(String department) {
+    public void setDepartment(DB_GUI_Controller.Department department) {
         this.department = department;
+    }
+
+    // Optional: method to get Major as a String
+    public String getDepartmentAsString() {
+        return department != null ? department.name() : "";
+    }
+
+    public void setDepartmentFromString(String departmentString) {
+        this.department = DB_GUI_Controller.Department.valueOf(departmentString);
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     public String getImageURL() {
@@ -107,8 +107,8 @@ public class Person {
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", department='" + department + '\'' +
-                ", major='" + major + '\'' +
+                ", position='" + position + '\'' +
+                ", major='" + department + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }
