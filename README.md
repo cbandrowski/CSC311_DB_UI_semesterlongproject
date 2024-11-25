@@ -1,4 +1,4 @@
-# Student Statistics
+# Employee Statistics
 
 ## Table of Contents
 - [About](#about)
@@ -34,7 +34,11 @@ This application allows a school to manage and track student information, includ
 - **Subsequent Use**: Log in with your credentials.
 - 
 
-https://github.com/user-attachments/assets/f486a2f6-0cba-4b69-91ed-a6a1a6f6616e
+
+
+https://github.com/user-attachments/assets/df755635-21b0-43fc-a16f-e8d8424e9919
+
+
 
 
 
@@ -53,7 +57,10 @@ https://github.com/user-attachments/assets/f486a2f6-0cba-4b69-91ed-a6a1a6f6616e
 1. Navigate to **File > ChangePic** from the menu bar.
 2. Select and upload your profile picture from your desktop.
 
-https://github.com/user-attachments/assets/db46e773-8e58-41b6-b5bb-b9b28e931224
+
+
+https://github.com/user-attachments/assets/f19242d5-58a7-4676-899b-d841f1313211
+
 
 ## Features
 
@@ -112,7 +119,10 @@ PDF generation is implemented using the **iText library** for creating formatted
 2. Click **Add** to save the record.
    
 
-https://github.com/user-attachments/assets/e9f62c3e-c6e5-45e3-8633-72b7a3a62eb5
+
+https://github.com/user-attachments/assets/8aec8b53-0f6b-42fd-9889-89fc090d493d
+
+
 
 
 
@@ -122,7 +132,10 @@ https://github.com/user-attachments/assets/e9f62c3e-c6e5-45e3-8633-72b7a3a62eb5
 3. Click **Edit** to update the record.
    
 
-https://github.com/user-attachments/assets/f96ca3a2-28b7-4385-aba3-ef4c743b8a77
+
+
+https://github.com/user-attachments/assets/e61f2980-8cac-4b48-b3d4-ee496be8cf82
+
 
 
 
@@ -130,11 +143,19 @@ https://github.com/user-attachments/assets/f96ca3a2-28b7-4385-aba3-ef4c743b8a77
 1. Select a record in the TableView.
 2. Click **Delete** to remove the record.
 
+   
+
+https://github.com/user-attachments/assets/ec7ec9d6-1322-4411-af92-25661cce8dc1
+
+
+
 ### Importing Data
 1. Click **Import CSV**.
 2. Choose a valid CSV file and load the data.
 
-https://github.com/user-attachments/assets/efce9638-4b17-41e5-831e-4af4435c92b8
+
+https://github.com/user-attachments/assets/e61accc9-e16f-4b87-9173-cd9e4fad7eb0
+
 
 
 ### Exporting Data
@@ -142,12 +163,12 @@ https://github.com/user-attachments/assets/efce9638-4b17-41e5-831e-4af4435c92b8
 2. Save the file to your desired location.
    
 
-https://github.com/user-attachments/assets/e49c9288-0e8e-41ef-9669-7e290f22ec98
+https://github.com/user-attachments/assets/29f9a3b5-616e-40e2-8af3-b8d2c8444398
 
+Export CSV output 
 
+![Screenshot 2024-11-25 at 6 29 43 PM](https://github.com/user-attachments/assets/22410d8e-d6a6-4c68-a622-95c71be2de19)
 
-CSV FIle Exported 
-![Screenshot 2024-11-24 at 12 07 32 PM](https://github.com/user-attachments/assets/27e4398e-3f65-4ae3-a6b9-db5a79ff75ae)
 
 
 ### Generating Reports
@@ -155,12 +176,15 @@ CSV FIle Exported
 2. Save the report to your desired location.
    
 
-https://github.com/user-attachments/assets/e0c16231-0078-4834-82e3-0af74d630179
+
+https://github.com/user-attachments/assets/936b3dff-cc21-4087-9689-776e01c13d65
+
+
 
 
 PDF Generated 
 
-![Screenshot 2024-11-24 at 1 27 02 PM](https://github.com/user-attachments/assets/1d48d27b-8be5-4b51-9402-5cce9e0d013d)
+![Screenshot 2024-11-25 at 6 32 01 PM](https://github.com/user-attachments/assets/66a11e03-50f9-4d9d-a626-41970f3724f9)
 
 
 
