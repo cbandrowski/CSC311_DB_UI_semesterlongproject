@@ -103,9 +103,11 @@ https://github.com/user-attachments/assets/f19242d5-58a7-4676-899b-d841f1313211
 - **Upload Profile Picture (`showImage`)**: Allows users to upload and display a profile picture. Progress tracking is implemented for uploads.
   
 ### Login and Password Management
--**Login (login): Authenticates user credentials against the database. Displays error messages for invalid inputs or incorrect credentials.
--**Sign Up (signUp): Navigates the user to the sign-up screen to create a new account.
--**Toggle Password Visibility (togglePasswordVisibility): Allows users to toggle between hiding and showing their password during login.
+-Login (login): Authenticates user credentials against the database. Displays error messages for invalid inputs or incorrect credentials.
+
+-Sign Up (signUp): Navigates the user to the sign-up screen to create a new account.
+
+-Toggle Password Visibility (togglePasswordVisibility): Allows users to toggle between hiding and showing their password during login.
 
 
 ## Backend
@@ -125,6 +127,25 @@ https://github.com/user-attachments/assets/f19242d5-58a7-4676-899b-d841f1313211
 
 
 ## Usage
+
+### Login
+1. Enter your username in the `usernameField`.
+2. Enter your password in the `passwordField`.
+3. Optionally, click the **"Show"** button to toggle password visibility.
+4. Click **Login** to authenticate.
+
+### Toggle Password Visibility
+- **Method**: `togglePasswordVisibility`
+- **Functionality**:
+  - If the password is hidden:
+    - The `PasswordField` is replaced with the `TextField` containing the password text.
+    - The button label changes to "Hide."
+  - If the password is visible:
+    - The `TextField` is replaced with the `PasswordField`.
+    - The button label changes to "Show."
+
+This feature is implemented to enhance usability during login.
+
 
 ### Adding a New User
 1. Fill in the form fields for:
