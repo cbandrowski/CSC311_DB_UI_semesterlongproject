@@ -1,20 +1,35 @@
-# Student Statistics
+# Employee Statistics
 
 ## Table of Contents
-- [About](#about)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Account Creation](#account-creation)
-  - [Username Requirements](#username-requirements)
-  - [Password Requirements](#password-requirements)
-  - [After Initial Login](#after-initial-login)
-- [Features](#features)
-- [Backend](#backend)
-- [Usage](#usage)
+1. [About](#about)
+2. [Getting Started](#getting-started)
+   - [Prerequisites](#prerequisites)
+   - [Installation](#installation)
+   - [Account Creation](#account-creation)
+3. [Features](#features)
+   - [User Management](#user-management)
+   - [Visualization](#visualization)
+   - [Data Import & Export](#data-import--export)
+   - [Reporting](#reporting)
+   - [Theming](#theming)
+   - [Profile Management](#profile-management)
+4. [Backend](#backend)
+   - [Database](#database)
+   - [File Uploads](#file-uploads)
+   - [Validation](#validation)
+5. [Usage](#usage)
+   - [Adding a New User](#adding-a-new-user)
+   - [Editing an Existing User](#editing-an-existing-user)
+   - [Deleting a User](#deleting-a-user)
+   - [Importing Data](#importing-data)
+   - [Exporting Data](#exporting-data)
+   - [Generating Reports](#generating-reports)
+   - [Login and Password Manaagment](#login-and-password-management)
+     
+
 
 ## About
-This application allows a school to manage and track student information, including majors and overall student statistics. It provides a user-friendly interface for administrators to add, edit, delete, and visualize data. The app also generates reports and supports data import/export for efficient management.
+This application allows a Employeer to manage and track Employee;s, including Positions and overall student statistics. It provides a user-friendly interface for administrators to add, edit, delete, and visualize data. The app also generates reports and supports data import/export for efficient management.
 
 ## Getting Started
 
@@ -32,9 +47,13 @@ This application allows a school to manage and track student information, includ
 ### Account Creation
 - **Initial Use**: Create an account to start using the application.
 - **Subsequent Use**: Log in with your credentials.
-- 
+  
 
-https://github.com/user-attachments/assets/f486a2f6-0cba-4b69-91ed-a6a1a6f6616e
+
+
+https://github.com/user-attachments/assets/df755635-21b0-43fc-a16f-e8d8424e9919
+
+
 
 
 
@@ -53,51 +72,57 @@ https://github.com/user-attachments/assets/f486a2f6-0cba-4b69-91ed-a6a1a6f6616e
 1. Navigate to **File > ChangePic** from the menu bar.
 2. Select and upload your profile picture from your desktop.
 
-https://github.com/user-attachments/assets/db46e773-8e58-41b6-b5bb-b9b28e931224
+
+
+https://github.com/user-attachments/assets/f19242d5-58a7-4676-899b-d841f1313211
 
 ## Features
 
 ### User Management
-- **Add User**: Create new student records.
-- **Edit User**: Modify existing records.
-- **Delete User**: Remove records from the database.
-- **Clear Form**: Reset all input fields.
+- **Add User (`addNewRecord`)**: Adds a new user by validating form inputs and saving them to the database.
+- **Edit User (`editRecord`)**: Updates the selected user's details in the database.
+- **Delete User (`deleteRecord`)**: Removes the selected user record from the database.
+- **Clear Form (`clearForm`)**: Resets all input fields.
 
 ### Visualization
-- **Pie Chart**: Displays the distribution of students across different majors.
-- **Total Users**: Shows the total number of students.
+- **Pie Chart (`initializePieChart`)**: Displays the distribution of students across departments using the `updatePieChart` method.
+- **Total Users (`updateStudentCount`)**: Dynamically calculates and displays the total number of users.
 
 ### Data Import & Export
-- **CSV Import**: Import student data from a CSV file.
-- **CSV Export**: Export current data to a CSV file.
+- **Import Data (`importCSV`)**: Reads user records from a CSV file, validates, and inserts them into the database.
+- **Export Data (`exportCSV`)**: Exports the current user records to a CSV file.
 
 ### Reporting
-- **PDF Generation**: Generate a detailed PDF report of student statistics, including counts by major.
+- **Generate PDF (`pdfMajorNum`)**: Creates a PDF report showing the number of employees by department, including a timestamp.
 
 ### Theming
-- **Light/Dark Themes**: Switch between light and dark modes.
+- **Light Theme (`lightTheme`)**: Applies the light theme to the application.
+- **Dark Theme (`darkTheme`)**: Applies the dark theme to the application.
 
 ### Profile Management
-- Upload and display a profile picture for logged-in users.
+- **Upload Profile Picture (`showImage`)**: Allows users to upload and display a profile picture. Progress tracking is implemented for uploads.
+  
+### Login and Password Management
+-**Login (login): Authenticates user credentials against the database. Displays error messages for invalid inputs or incorrect credentials.
+-**Sign Up (signUp): Navigates the user to the sign-up screen to create a new account.
+-**Toggle Password Visibility (togglePasswordVisibility): Allows users to toggle between hiding and showing their password during login.
+
 
 ## Backend
 
 ### Database
-The application uses **Microsoft Azure SQL** for data persistence. The database includes:
-- `Person` table: Stores student details such as name, department, email, and major.
+- **Microsoft Azure SQL**: Used to store user details, including:
+  - `Person` table: Contains fields for first name, last name, department, email, and profile picture URL.
 
 ### File Uploads
-Files are uploaded to **Azure Blob Storage** with progress tracking.
+- **Azure Blob Storage (`createUploadTask`)**: Manages file uploads with progress tracking.
 
 ### Validation
-The application ensures data integrity with validation for:
-- **Names**: Only alphabetic characters allowed.
-- **Department**: Alphanumeric and spaces allowed.
-- **Email**: Basic email format validation.
-- **Image URL**: Must end with `.jpg`, `.png`, or `.gif`.
+- Ensures data integrity with validation methods:
+  - `validateName`: Checks if names contain only alphabetic characters.
+  - `validateEmail`: Ensures email addresses match a basic format.
+  - `validateImageURL`: Verifies the URL ends with `.jpg`, `.png`, or `.gif`.
 
-### Reporting
-PDF generation is implemented using the **iText library** for creating formatted reports.
 
 ## Usage
 
@@ -110,9 +135,18 @@ PDF generation is implemented using the **iText library** for creating formatted
    - Email
    - Profile Image URL
 2. Click **Add** to save the record.
+
+   Method: **`addNewRecord`**
+- Validates input fields using `validateFields`.
+- Saves the new user to the database with `cnUtil.insertUser`.
+- Updates the `ObservableList` and Pie Chart.
+
    
 
-https://github.com/user-attachments/assets/e9f62c3e-c6e5-45e3-8633-72b7a3a62eb5
+
+https://github.com/user-attachments/assets/8aec8b53-0f6b-42fd-9889-89fc090d493d
+
+
 
 
 
@@ -120,9 +154,17 @@ https://github.com/user-attachments/assets/e9f62c3e-c6e5-45e3-8633-72b7a3a62eb5
 1. Select a record in the TableView.
 2. Modify the fields as needed.
 3. Click **Edit** to update the record.
+
+Method: **`editRecord`**
+- Updates the selected user's details in the database using `cnUtil.editUser`.
+- Updates the TableView and Pie Chart.
+
    
 
-https://github.com/user-attachments/assets/f96ca3a2-28b7-4385-aba3-ef4c743b8a77
+
+
+https://github.com/user-attachments/assets/e61f2980-8cac-4b48-b3d4-ee496be8cf82
+
 
 
 
@@ -130,37 +172,69 @@ https://github.com/user-attachments/assets/f96ca3a2-28b7-4385-aba3-ef4c743b8a77
 1. Select a record in the TableView.
 2. Click **Delete** to remove the record.
 
+Method: **`deleteRecord`**
+- Deletes the selected user from the database using `cnUtil.deleteRecord`.
+- Removes the user from the `ObservableList`.
+
+
+   
+
+https://github.com/user-attachments/assets/ec7ec9d6-1322-4411-af92-25661cce8dc1
+
+
+
 ### Importing Data
 1. Click **Import CSV**.
 2. Choose a valid CSV file and load the data.
 
-https://github.com/user-attachments/assets/efce9638-4b17-41e5-831e-4af4435c92b8
+   
+Method: **`importCSV`**
+- Parses CSV records line-by-line.
+- Inserts valid records into the database using `cnUtil.insertUser`.
+
+
+
+https://github.com/user-attachments/assets/e61accc9-e16f-4b87-9173-cd9e4fad7eb0
+
 
 
 ### Exporting Data
 1. Click **Export CSV**.
 2. Save the file to your desired location.
    
+   Method: **`exportCSV`**
+- Formats user data into CSV rows.
+- Writes the rows to a file using `BufferedWriter`.
 
-https://github.com/user-attachments/assets/e49c9288-0e8e-41ef-9669-7e290f22ec98
+   
 
+https://github.com/user-attachments/assets/29f9a3b5-616e-40e2-8af3-b8d2c8444398
 
+Export CSV output 
 
-CSV FIle Exported 
-![Screenshot 2024-11-24 at 12 07 32 PM](https://github.com/user-attachments/assets/27e4398e-3f65-4ae3-a6b9-db5a79ff75ae)
+![Screenshot 2024-11-25 at 6 29 43 PM](https://github.com/user-attachments/assets/22410d8e-d6a6-4c68-a622-95c71be2de19)
+
 
 
 ### Generating Reports
 1. Click **Generate PDF**.
 2. Save the report to your desired location.
    
+   Method: **`pdfMajorNum`**
+- Counts employees by department using a `HashMap`.
+- Creates a formatted PDF report with iText.
 
-https://github.com/user-attachments/assets/e0c16231-0078-4834-82e3-0af74d630179
+   
+
+
+https://github.com/user-attachments/assets/936b3dff-cc21-4087-9689-776e01c13d65
+
+
 
 
 PDF Generated 
 
-![Screenshot 2024-11-24 at 1 27 02 PM](https://github.com/user-attachments/assets/1d48d27b-8be5-4b51-9402-5cce9e0d013d)
+![Screenshot 2024-11-25 at 6 32 01 PM](https://github.com/user-attachments/assets/66a11e03-50f9-4d9d-a626-41970f3724f9)
 
 
 
