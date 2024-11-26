@@ -2,7 +2,10 @@ package viewmodel;
 
 import com.azure.storage.blob.BlobClient;
 import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
 import dao.DbConnectivityClass;
+import javafx.scene.layout.*;
+
 import dao.StorageUploader;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -31,7 +34,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -60,6 +62,7 @@ public class DB_GUI_Controller implements Initializable {
     public Label userNameLabel;
     public PieChart deparmtmentPieChart;
     public Label studentCountLabel;
+    public ImageView backgroundImage;
     StorageUploader store = new StorageUploader();
     @FXML
     ProgressBar progressBar;
@@ -92,6 +95,8 @@ public class DB_GUI_Controller implements Initializable {
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
     UserSession currentSession = UserSession.getCurrentSession();
+    @FXML
+    private AnchorPane anchorPane;
 
 
 
@@ -110,6 +115,16 @@ public class DB_GUI_Controller implements Initializable {
         // Manage button states based on input and selection
         manageButtonStates();
         manageAddButtonState();
+        anchorPane.setBackground(new Background(
+                new BackgroundImage(
+                        new Image(getClass().getResource("/images/coffeeInterface.png").toExternalForm()),
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true)
+                )
+        ));
+
     }
     private void initializeButtons(){
         // Keyboard shortcuts for menu items
@@ -148,7 +163,6 @@ public class DB_GUI_Controller implements Initializable {
                     new SimpleObjectProperty<>(cellData.getValue().getDepartment())
             );
             tv_department.setCellFactory(ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(Department.values())));
-
 
             tv.setItems(data);
             tv.setEditable(true);
@@ -296,6 +310,10 @@ public class DB_GUI_Controller implements Initializable {
         position.textProperty().addListener(formListener);
         email.textProperty().addListener(formListener);
         imageURL.textProperty().addListener(formListener);
+        for (Person person : data) {
+            System.out.println("Person: " + person.getFirstName() + ", Department: " + person.getDepartment());
+        }
+
         // Add a listener for the ComboBox selection
         combo_department.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             addBtn.setDisable(!isFormValid());
@@ -740,11 +758,14 @@ public class DB_GUI_Controller implements Initializable {
     }
     @FXML
     public void pdfMajorNum(ActionEvent actionEvent) {
-        // Count students by major
-        Map<Department, Integer> majorCounts = new HashMap<>();
+        // Count students by major (department)
+        Map<Department, Integer> departmentCounts = new HashMap<>();
+        int totalEmployees = 0;
+
         for (Person person : data) {
-            Department major = person.getDepartment();
-            majorCounts.put(major, majorCounts.getOrDefault(major, 0) + 1);
+            Department department = person.getDepartment();
+            departmentCounts.put(department, departmentCounts.getOrDefault(department, 0) + 1);
+            totalEmployees++; // Increment total employee count
         }
 
         // Use FileChooser for saving the PDF
@@ -763,17 +784,27 @@ public class DB_GUI_Controller implements Initializable {
 
             // Add title
             Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
-            document.add(new Paragraph("Number of Students by Department", titleFont));
+            document.add(new Paragraph("Number of Employees by Department", titleFont));
             document.add(new Paragraph("\n"));
 
             // Add table
-            PdfPTable table = new PdfPTable(2); // Two columns: Major and Count
-            table.addCell("Department");
-            table.addCell("Count");
-            for (Map.Entry<Department, Integer> entry : majorCounts.entrySet()) {
+            PdfPTable table = new PdfPTable(2); // Two columns: Department and Count
+            table.setWidthPercentage(100); // Set table width to 100%
+            table.addCell(new PdfPCell(new Phrase("Department", titleFont)));
+            table.addCell(new PdfPCell(new Phrase("Count", titleFont)));
+
+            for (Map.Entry<Department, Integer> entry : departmentCounts.entrySet()) {
                 table.addCell(entry.getKey() != null ? entry.getKey().name() : "Unknown");
                 table.addCell(String.valueOf(entry.getValue()));
             }
+
+            // Add total employees row
+            Font boldFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+            PdfPCell totalCell = new PdfPCell(new Phrase("Total Employees", boldFont));
+            totalCell.setColspan(1); // Span only one column
+            table.addCell(totalCell);
+            table.addCell(String.valueOf(totalEmployees));
+
             document.add(table);
 
             // Add timestamp
@@ -791,6 +822,7 @@ public class DB_GUI_Controller implements Initializable {
             document.close();
         }
     }
+
     @FXML
     protected void copySelectedRecord() {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
@@ -816,12 +848,13 @@ public class DB_GUI_Controller implements Initializable {
             this.department = venue;
         }
     }
-    // Convert String to Major Enum
-    public static Department fromString(String majorString) {
+    public static Department fromString(String value) {
+        if (value == null) return null;
         try {
-            return Department.valueOf(majorString.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            return null; // Handle invalid or null values
+            return Department.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid Department value: " + value);
+            return null; // Or throw an exception if necessary
         }
     }
 }

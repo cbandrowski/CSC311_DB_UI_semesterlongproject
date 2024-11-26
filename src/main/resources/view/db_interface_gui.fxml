@@ -6,7 +6,11 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.chart.PieChart?>
-<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="920.0" styleClass="anchor_pane" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.DB_GUI_Controller">
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1280.0" prefWidth="1280.0" styleClass="anchor_pane" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.DB_GUI_Controller">
+    <children>
+        <ImageView fx:id="backgroundImage" fitHeight="1280" fitWidth="1280" preserveRatio="false" />
+
+    </children>
     <children>
         <BorderPane fx:id="borderPane" layoutX="-2.0" layoutY="-3.0" prefHeight="597.0" prefWidth="908.0">
             <top>
@@ -72,7 +76,7 @@
                                 <ProgressBar fx:id="progressBar" layoutX="10.0" layoutY="180.0" prefWidth="80.0" visible="false" />
                             </children>
                         </AnchorPane>
-                        <Label text="Total Students:" style="-fx-font-size: 16px;" />
+                        <Label text="Total Employee's:" style="-fx-font-size: 16px;" />
                         <Label fx:id="studentCountLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
                         <!-- PieChart for displaying major distribution -->
                         <PieChart fx:id="deparmtmentPieChart" prefHeight="180.0" prefWidth="90.0" maxHeight="180.0" maxWidth="90.0" />

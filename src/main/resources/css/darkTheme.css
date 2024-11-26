@@ -1,143 +1,146 @@
-/* Anchor Pane */
+/* /* Anchor Pane */
 .anchor_pane {
-    -fx-background-color: #000000;
+    -fx-background-color: #3E2723; /* Dark brown background */
 }
 
 /* Buttons */
 .db_btn {
-    -fx-background-color: #3e3e3e;
-    -fx-border-color: #0033CC;
+    -fx-background-color: #5D4037; /* Light brown */
+    -fx-border-color: #8D6E63; /* Slightly lighter brown */
     -fx-border-width: 2;
     -fx-border-radius: 15;
     -fx-radius: 12;
     -fx-cursor: hand;
     -fx-font-family: "Arial";
     -fx-font-size: 15px;
-    -fx-text-fill: white;
+    -fx-text-fill: white; /* White text for high contrast */
     -fx-alignment: CENTER;
     -fx-pref-width: 220px;
     -fx-pref-height: 45px;
-    -fx-effect: dropshadow(gaussian, #3366FF, 6, 0.7, 0, 3);
+    -fx-effect: dropshadow(gaussian, #8D6E63, 6, 0.7, 0, 3);
 }
 
 /* Left Pane */
 .left_pane {
-    -fx-background-color: #000000;
+    -fx-background-color: #3E2723; /* Dark brown */
     -fx-pref-width: 140px;
     -fx-pref-height: 600px;
-    -fx-text-fill: white;
-    -fx-border-color: #0033CC;
+    -fx-text-fill: white; /* White text for visibility */
+    -fx-border-color: #795548; /* Medium brown */
     -fx-border-width: 2;
     -fx-border-radius: 8;
 }
 
 /* Admin Section */
 .admin_section {
-    -fx-background-color: #000000;
+    -fx-background-color: #3E2723; /* Dark brown */
 }
 
 /* Table Columns */
 .table_columns {
-    -fx-background-color: #1a1a1a;
-    -fx-text-fill: #e7e1e1;
+    -fx-background-color: #5D4037; /* Light brown */
+    -fx-text-fill: white; /* White text for better contrast */
 }
+
 /* Style for the temporary status label */
 .status-label {
-    -fx-background-color: #000000; /* Green background */
-    -fx-text-fill: white;          /* White text */
-    -fx-font-size: 14px;           /* Font size */
-    -fx-padding: 10px;             /* Padding around the text */
-    -fx-border-radius: 5px;        /* Rounded border */
-    -fx-background-radius: 5px;    /* Matching rounded corners */
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 10, 0, 0, 0); /* Shadow effect */
-    -fx-alignment: center;         /* Center the text */
-    -fx-opacity: 0;                /* Start invisible for animations */
+    -fx-background-color: #4E342E; /* Darker brown */
+    -fx-text-fill: white; /* White text for visibility */
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 10, 0, 0, 0);
+    -fx-alignment: center;
+    -fx-opacity: 0; /* Start invisible for animations */
 }
 
 /* Menu Bar */
 .menu_bar {
-    -fx-background-color: #000000;
-    -fx-border-color: #0033CC;
+    -fx-background-color: #3E2723; /* Dark brown */
+    -fx-border-color: #8D6E63; /* Light brown */
     -fx-border-width: 0 0 2px 0;
-    -fx-effect: dropshadow(gaussian, #3366FF, 6, 0.3, 0, 2);
+    -fx-effect: dropshadow(gaussian, #795548, 6, 0.3, 0, 2);
 }
 
 .menu_bar .label {
     -fx-background-color: transparent;
     -fx-font-size: 16px;
-    -fx-text-fill: white;
+    -fx-text-fill: white; /* White text for better visibility */
 }
 
 .menu_options .label {
     -fx-background-color: transparent;
-    -fx-text-fill: white;
+    -fx-text-fill: white; /* White text */
 }
 
 .menu_items {
-    -fx-background-color: #000000;
+    -fx-background-color: #3E2723; /* Dark brown */
     -fx-border-radius: 10;
-    -fx-effect: dropshadow(gaussian, #3366FF, 4, 0.5, 0, 1);
-    -fx-font-family: "Monospaced"; /* Use a monospaced font for consistent spacing */
-    -fx-text-alignment: left;     /* Align text on the left */
-    -fx-padding: 0 20 0 5;        /* Adjust padding for spacing */
-
+    -fx-effect: dropshadow(gaussian, #8D6E63, 4, 0.5, 0, 1);
+    -fx-font-family: "Monospaced";
+    -fx-text-fill: white; /* White text for better visibility */
+    -fx-text-alignment: left;
+    -fx-padding: 0 20 0 5;
 }
+
+/* Dialog Pane */
 .dialog-pane {
     -fx-font-family: "Verdana";
     -fx-font-size: 14px;
-    -fx-background-color: Black;
+    -fx-background-color: #3E2723; /* Dark brown */
 }
 
 .dialog-pane .content.label {
-    -fx-text-fill: White; /* Red text for content */
-    -fx-font-weight: bold;  /* Bold font for content */
+    -fx-text-fill: white; /* White text */
+    -fx-font-weight: bold;
 }
 
 .dialog-pane .header-panel {
-    -fx-background-color: Black; /* Blue background for header */
-    -fx-text-fill: #ffffff; /* White header text */
+    -fx-background-color: #3E2723; /* Dark brown */
+    -fx-text-fill: white; /* White header text */
 }
 
 /* Text Fields */
 .text_field_pane {
-    -fx-background-color: #1a1a1a;
-    -fx-border-color: #0033CC;
+    -fx-background-color: #4E342E; /* Medium dark brown */
+    -fx-border-color: #795548; /* Light brown */
     -fx-border-radius: 8;
     -fx-padding: 5;
 }
 
 .text_field {
-    -fx-background-color: #000000;
-    -fx-border-color: #0033CC;
+    -fx-background-color: #3E2723; /* Dark brown */
+    -fx-border-color: #8D6E63; /* Slightly lighter brown */
     -fx-border-radius: 5;
-    -fx-text-fill: #ffffff;
-    -fx-prompt-text-fill: #aaaaaa; /* Ensures username is visible */
+    -fx-text-fill: white; /* White text for readability */
+    -fx-prompt-text-fill: #D7CCC8; /* Light tan prompt text */
     -fx-padding: 5;
-    -fx-effect: dropshadow(gaussian, #3366FF, 6, 0.5, 0, 2);
+    -fx-effect: dropshadow(gaussian, #8D6E63, 6, 0.5, 0, 2);
 }
 
 /* Image View */
 .image_view {
-    -fx-background-color: #000000;
-    -fx-border-color: #0033CC;
+    -fx-background-color: #3E2723; /* Dark brown */
+    -fx-border-color: #795548; /* Medium brown */
     -fx-border-width: 2;
-    -fx-effect: dropshadow(gaussian, #0033CC, 6, 0.7, 0, 3);
+    -fx-effect: dropshadow(gaussian, #8D6E63, 6, 0.7, 0, 3);
 }
 
 /* Table View */
 .table-view:focused .table-row-cell:selected .table-cell {
-    -fx-background-color: #3366FF;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #8D6E63; /* Light brown */
+    -fx-text-fill: white; /* White text */
 }
 
 .table-view .column-header,
 .table-view .column-header-background .filler {
-    -fx-background-color: #0033CC;
+    -fx-background-color: #4E342E; /* Medium brown */
     -fx-border-radius: 8;
 }
 
 .table-view .column-header .label {
-    -fx-text-fill: white;
+    -fx-text-fill: white; /* White text */
     -fx-font-weight: bold;
     -fx-alignment: CENTER_LEFT;
 }
@@ -145,15 +148,15 @@
 .table-view .cell {
     -fx-cell-size: 35;
     -fx-alignment: center-left;
-    -fx-background-color: #1a1a1a;
+    -fx-background-color: #3E2723; /* Dark brown */
     -fx-border-color: #444444;
     -fx-border-radius: 5;
-    -fx-text-fill: #eeeeee;
+    -fx-text-fill: white; /* White text */
 }
 
 .table-row-cell:selected {
-    -fx-background-color: #3366FF;
-    -fx-text-fill: white;
+    -fx-background-color: #8D6E63; /* Light brown */
+    -fx-text-fill: white; /* White text */
     -fx-border-radius: 5;
 }
 
@@ -162,13 +165,13 @@
 .table-view .decrement-button {
     -fx-background-color: transparent;
     -fx-background-radius: 50%;
-    -fx-effect: dropshadow(gaussian, #3366FF, 3, 0.3, 0, 1);
+    -fx-effect: dropshadow(gaussian, #8D6E63, 3, 0.3, 0, 1);
 }
 
 .table-view .scroll-bar:horizontal .track,
 .table-view .scroll-bar:vertical .track {
-    -fx-background-color: #1a1a1a;
-    -fx-border-color: #0033CC;
+    -fx-background-color: #4E342E; /* Medium brown */
+    -fx-border-color: #795548; /* Light brown */
     -fx-border-width: 2;
     -fx-border-radius: 10;
     -fx-background-radius: 10;
@@ -176,10 +179,35 @@
 
 .table-view .scroll-bar:horizontal .thumb,
 .table-view .scroll-bar:vertical .thumb {
-    -fx-background-color: #3366FF;
+    -fx-background-color: #8D6E63; /* Light brown */
     -fx-background-radius: 10;
-    -fx-effect: dropshadow(gaussian, #3366FF, 4, 0.5, 0, 2);
+    -fx-effect: dropshadow(gaussian, #8D6E63, 4, 0.5, 0, 2);
 }
-.label{
+
+/* General Label Styling */
+.label {
+    -fx-text-fill: white; /* White text for all labels */
+}
+.pie-chart {
+    -fx-background-color: transparent; /* Transparent background */
+}
+.pie-chart .label {
     -fx-text-fill: white;
+}
+
+.pie-chart .chart-legend {
+    -fx-text-fill: white; /* White text for legend */
+}
+
+.pie-chart .chart-title {
+    -fx-text-fill: white; /* White text for title */
+}
+
+.pie-chart .data {
+    -fx-text-fill: white; /* White text for data labels */
+}
+
+/* General Label Styling */
+.label {
+    -fx-text-fill: white; /* White text for all labels */
 }

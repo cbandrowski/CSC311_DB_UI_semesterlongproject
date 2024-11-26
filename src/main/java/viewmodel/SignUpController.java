@@ -9,6 +9,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import service.UserSession;
 import javafx.scene.control.TextField;
@@ -19,6 +21,7 @@ import java.util.prefs.Preferences;
 
 public class SignUpController {
     public Button togglePasswordButton;
+    public GridPane root_paneSignup;
     @FXML
     private TextField usernameField;
     @FXML
@@ -28,8 +31,18 @@ public class SignUpController {
     @FXML
 
 
+
     private boolean isPasswordVisible = false;
     public void initialize() {
+        root_paneSignup.setBackground(new Background(
+                new BackgroundImage(
+                        new Image(getClass().getResource("/images/coffeeSignup.jpg").toExternalForm()),
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true)
+                )
+        ));
         // Synchronize PasswordField and TextField
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!passwordVisibleField.isFocused()) {

@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -20,6 +21,7 @@ import service.UserSession;
 
 public class LoginController {
     public PasswordField passwordField;
+    public ImageView backgroundImage;
     @FXML
     private GridPane root_pane;
 
@@ -37,14 +39,14 @@ public class LoginController {
 
     public void initialize() {
         root_pane.setBackground(new Background(
-                        createImage("https://edencoding.com/wp-content/uploads/2021/03/layer_06_1920x1080.png"),
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
+                new BackgroundImage(
+                        new Image(getClass().getResource("/images/coffeeLogin.jpg").toExternalForm()),
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true)
                 )
-        );
+        ));
 
         root_pane.setOpacity(0);
         FadeTransition fadeOut2 = new FadeTransition(Duration.seconds(10), root_pane);

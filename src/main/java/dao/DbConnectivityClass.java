@@ -23,44 +23,53 @@ public class DbConnectivityClass {
         // Method to retrieve all data from the database and store it into an observable list to use in the GUI tableview.
 
 
-        public ObservableList<Person> getData() {
-            connectToDatabase();
-            try {
-                Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-                String sql = "SELECT * FROM users ";
-                PreparedStatement preparedStatement = conn.prepareStatement(sql);
-                ResultSet resultSet = preparedStatement.executeQuery();
-                if (!resultSet.isBeforeFirst()) {
-                    lg.makeLog("No data");
-                }
-                while (resultSet.next()) {
-                    int id = resultSet.getInt("id");
-                    String first_name = resultSet.getString("first_name");
-                    String last_name = resultSet.getString("last_name");
-                    String department = resultSet.getString("position");
-                    String majorStr = resultSet.getString("department");
-                    DB_GUI_Controller.Department major = null;
-                    try {
-                        if (majorStr != null) {
-                        }
-                    } catch (IllegalArgumentException e) {
-                        // Handle case where the database value doesn't match any enum constant
-                        lg.makeLog("Invalid department found in database: " + majorStr);
-                    }
-                    String email = resultSet.getString("email");
-                    String imageURL = resultSet.getString("imageURL");
-                    data.add(new Person(id, first_name, last_name, department, major, email, imageURL));
-                }
-                preparedStatement.close();
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+    public ObservableList<Person> getData() {
+        connectToDatabase();
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            String sql = "SELECT * FROM users";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.isBeforeFirst()) {
+                lg.makeLog("No data");
             }
-            return data;
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String first_name = resultSet.getString("first_name");
+                String last_name = resultSet.getString("last_name");
+                String position = resultSet.getString("position");
+                String departmentStr = resultSet.getString("department");
+                DB_GUI_Controller.Department department = null;
+
+                // Convert departmentStr to enum
+                try {
+                    if (departmentStr != null) {
+                        department = DB_GUI_Controller.Department.valueOf(departmentStr.toUpperCase()); // Match enum case
+                    }
+                } catch (IllegalArgumentException e) {
+                    lg.makeLog("Invalid department found in database: " + departmentStr);
+                    // Log and assign null or a default value if desired
+                }
+
+                String email = resultSet.getString("email");
+                String imageURL = resultSet.getString("imageURL");
+
+                // Ensure department is passed as an enum, not a string
+                data.add(new Person(id, first_name, last_name, position, department, email, imageURL));
+            }
+
+            preparedStatement.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return data;
+    }
 
 
-        public boolean connectToDatabase() {
+    public boolean connectToDatabase() {
             boolean hasRegistredUsers = false;
 
             try {
